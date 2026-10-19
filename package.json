@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/red-cup-engineering/git-services-section.git",
-    "directory": "services/git-forge-services-section"
+    "url": "git+https://github.com/red-cup-engineering/git-forge-services-section.git"
   },
   "private": true,
   "type": "module",
