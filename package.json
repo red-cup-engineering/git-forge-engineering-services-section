@@ -7,5 +7,10 @@
   },
   "private": true,
   "type": "module",
-  "description": "Groups tooling for git hosting forges. Use when adding or finding integrations with services that host git repositories."
+  "description": "Groups tooling for git hosting forges. Use when adding or finding integrations with services that host git repositories.",
+  "license": "MIT",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/561-group/.github/blob/main/TIPS.md"
+  }
 }
