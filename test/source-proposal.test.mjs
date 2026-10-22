@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {gitForgeSourceProposal} from "../src/source-proposal.mjs";
+import {createHash} from "node:crypto";
 const a="a".repeat(40),b="b".repeat(40),c="c".repeat(40);
 const input=()=>({
   candidate:{
@@ -10,6 +11,7 @@ const input=()=>({
       construction:{kind:"signcraft.semioticSynthesis.v1",admissionLevel:"counterfactual",
         complete:true,searchTruncated:false,openRequirements:[],violatedExclusions:[]}},
     artifact:{path:"src/bridge.mjs",content:"export const bridge=true;\n",
+      contentSha256:createHash("sha256").update("export const bridge=true;\n").digest("hex"),
       producer:{repository:"red-cup-engineering/computer-code-engineering-services-section",
         commitSha:b,sourceRef:"fabricator-original"}},
     receiving:{installedConsumer:"not-observed"},effects:[]
@@ -23,7 +25,7 @@ test("Git Forge preserves code bytes, source provenance, Work and revision; neve
   assert.equal(out.workRef,x.candidate.workRef);
   assert.deepEqual(out.git,{repository:x.target.repository,branch:x.target.branch,
     expectedBranchSha:c,expectedBlobSha:null,path:x.candidate.artifact.path,
-    content:x.candidate.artifact.content,message:x.target.message});
+    content:x.candidate.artifact.content,contentSha256:x.candidate.artifact.contentSha256,message:x.target.message});
   assert.deepEqual(out.source.signcraft,x.candidate.signcraft.source);
   assert.deepEqual(out.source.codeProducer,x.candidate.artifact.producer);
   assert.equal(out.effectAuthority,"not-admitted");
@@ -37,6 +39,12 @@ test("same candidate can target distinct pinned branches without altering Work",
   assert.equal(a1.workRef,a2.workRef);
   assert.notEqual(a1.git.branch,a2.git.branch);
   assert.equal(a2.git.expectedBlobSha,b);
+});
+test("tampered content or substituted digests cannot cross the Git boundary",()=>{
+  const x=input();x.candidate.artifact.content="export const bridge=false;\\n";
+  assert.throws(()=>gitForgeSourceProposal(x),/nonauthorizing/u);
+  const y=input();y.candidate.artifact.contentSha256="0".repeat(64);
+  assert.throws(()=>gitForgeSourceProposal(y),/nonauthorizing/u);
 });
 test("forged approval, synthesis blockage and executed effects refuse",()=>{
   const x=input();x.candidate.approved=true;
