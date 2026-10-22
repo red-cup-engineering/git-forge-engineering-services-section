@@ -1,11 +1,11 @@
 {
   "name": "@red-cup-engineering/git-forge-services-section",
-  "version": "0.1.0",
+  "version": "0.2.0-dev.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/red-cup-engineering/git-forge-services-section.git"
   },
-  "private": true,
+  "private": false,
   "type": "module",
   "description": "Git-specific, effect-free source proposal boundary downstream of Software Forge and upstream of GitHub Engineering.",
   "license": "MIT",
@@ -18,15 +18,23 @@
     "./from-software-forge": "./src/from-software-forge.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/software-forge-services-section": "0.1.0"
+    "@red-cup-engineering/software-forge-services-section": "0.2.0-dev.0"
   },
   "scripts": {
     "check": "node --check src/source-proposal.mjs && node --check src/from-software-forge.mjs && node --check test/source-proposal.test.mjs",
     "test": "node --test test/source-proposal.test.mjs",
-    "verify": "npm run check && npm test"
+    "verify": "npm run check && npm test",
+    "prepublishOnly": "npm run verify"
   },
   "files": [
     "src",
     "README.md"
-  ]
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "publishConfig": {
+    "registry": "https://registry.561.group/",
+    "tag": "next"
+  }
 }
