@@ -30,6 +30,7 @@ export function gitForgeSourceProposal({candidate,target}) {
       !only(candidate.artifact,["path","content","producer"]) ||
       !named(candidate.artifact.path) || !PATH.test(candidate.artifact.path) ||
       candidate.artifact.path.split("/").some(p=>p==="."||p===".."||p==="") ||
+      /^(?:\.git(?:\/|$)|\.github\/(?:workflows|CODEOWNERS|dependabot\.ya?ml)(?:\/|$))/iu.test(candidate.artifact.path) ||
       typeof candidate.artifact.content!=="string" || !candidate.artifact.content.trim() ||
       Buffer.byteLength(candidate.artifact.content)>1_000_000 ||
       !only(candidate.artifact.producer,["repository","commitSha","sourceRef"]) ||
