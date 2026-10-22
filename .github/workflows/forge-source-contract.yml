@@ -6,14 +6,6 @@ on:
       - "test/**"
       - "package.json"
       - ".github/workflows/forge-source-contract.yml"
-  push:
-    branches:
-      - "feat/software-to-git-forge-source-handoff-20261022"
-    paths:
-      - "src/**"
-      - "test/**"
-      - "package.json"
-      - ".github/workflows/forge-source-contract.yml"
 permissions:
   contents: read
 concurrency:
@@ -36,3 +28,19 @@ jobs:
         run: |
           npm run check
           npm test
+      - name: Check out exact upstream Software Forge source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: red-cup-engineering/software-forge-services-section
+          ref: ffcf7400db085a6af154b5c6602a6214d4c2c9c5
+          path: software-forge-upstream
+          persist-credentials: false
+      - name: Bind the original source export for native integration
+        run: |
+          set -euo pipefail
+          test "$(git -C software-forge-upstream rev-parse HEAD)" = "ffcf7400db085a6af154b5c6602a6214d4c2c9c5"
+          mkdir -p node_modules/@red-cup-engineering
+          ln -s "$GITHUB_WORKSPACE/software-forge-upstream" node_modules/@red-cup-engineering/software-forge-services-section
+          node --test test/integration-from-software-forge.test.mjs
+      - name: Verify internal package layout without publishing
+        run: npm pack --dry-run --ignore-scripts
