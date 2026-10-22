@@ -7,10 +7,26 @@
   },
   "private": true,
   "type": "module",
-  "description": "Groups tooling for git hosting forges. Use when adding or finding integrations with services that host git repositories.",
+  "description": "Git-specific, effect-free source proposal boundary downstream of Software Forge and upstream of GitHub Engineering.",
   "license": "MIT",
   "funding": {
     "type": "individual",
     "url": "https://github.com/561-group/.github/blob/main/TIPS.md"
-  }
+  },
+  "exports": {
+    "./source-proposal": "./src/source-proposal.mjs",
+    "./from-software-forge": "./src/from-software-forge.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/software-forge-services-section": "0.1.0"
+  },
+  "scripts": {
+    "check": "node --check src/source-proposal.mjs && node --check src/from-software-forge.mjs && node --check test/source-proposal.test.mjs",
+    "test": "node --test test/source-proposal.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ]
 }
