@@ -32,15 +32,22 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: red-cup-engineering/software-forge-services-section
-          ref: ffcf7400db085a6af154b5c6602a6214d4c2c9c5
+          ref: 546aeabd8110cd3bc82775c16f1478e0996c316c
           path: software-forge-upstream
           persist-credentials: false
       - name: Bind the original source export for native integration
         run: |
           set -euo pipefail
-          test "$(git -C software-forge-upstream rev-parse HEAD)" = "ffcf7400db085a6af154b5c6602a6214d4c2c9c5"
+          test "$(git -C software-forge-upstream rev-parse HEAD)" = "546aeabd8110cd3bc82775c16f1478e0996c316c"
           mkdir -p node_modules/@red-cup-engineering
           ln -s "$GITHUB_WORKSPACE/software-forge-upstream" node_modules/@red-cup-engineering/software-forge-services-section
           node --test test/integration-from-software-forge.test.mjs
+      - name: Run native published SignCraft through pinned Software Forge and Git Forge
+        run: |
+          set -euo pipefail
+          npm install --prefix software-forge-upstream --ignore-scripts --no-audit --no-fund --no-package-lock --registry=https://registry.561.group/
+          node -e "const p=require('./software-forge-upstream/node_modules/@red-cup-engineering/signcraft/package.json'); if(p.name!=='@red-cup-engineering/signcraft'||p.version!=='0.5.6') process.exit(1)"
+          ln -s "$GITHUB_WORKSPACE/software-forge-upstream/node_modules/@red-cup-engineering/signcraft" node_modules/@red-cup-engineering/signcraft
+          node --test test/native-signcraft-chain.test.mjs
       - name: Verify internal package layout without publishing
         run: npm pack --dry-run --ignore-scripts
