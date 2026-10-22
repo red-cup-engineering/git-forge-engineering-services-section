@@ -3,6 +3,7 @@
  * This is not a commit/branch, credential grant, PR, approved deployment or
  * executed Git action. Native Git Services owns repository tree mechanics.
  */
+import {createHash} from "node:crypto";
 const SHA=/^[0-9a-f]{40}$/u;
 const REPO=/^[a-z0-9][a-z0-9.-]*\/[a-z0-9][a-z0-9._-]*$/u;
 const REF=/^(?!\/|.*\.\.|.*\/\.)(?!.*\.lock(?:\/|$))[A-Za-z0-9][A-Za-z0-9._\/-]{0,199}$/u;
@@ -27,12 +28,14 @@ export function gitForgeSourceProposal({candidate,target}) {
       candidate.signcraft.source?.repository!=="red-cup-engineering/signcraft" ||
       !SHA.test(candidate.signcraft.source?.commitSha??"") ||
       candidate.signcraft.source?.exportPath!=="./inference/generate" ||
-      !only(candidate.artifact,["path","content","producer"]) ||
+      !only(candidate.artifact,["path","content","contentSha256","producer"]) ||
       !named(candidate.artifact.path) || !PATH.test(candidate.artifact.path) ||
       candidate.artifact.path.split("/").some(p=>p==="."||p===".."||p==="") ||
       /^(?:\.git(?:\/|$)|\.github\/(?:workflows|CODEOWNERS|dependabot\.ya?ml)(?:\/|$))/iu.test(candidate.artifact.path) ||
       typeof candidate.artifact.content!=="string" || !candidate.artifact.content.trim() ||
       Buffer.byteLength(candidate.artifact.content)>1_000_000 ||
+      !/^[0-9a-f]{64}$/u.test(candidate.artifact.contentSha256??"") ||
+      candidate.artifact.contentSha256!==createHash("sha256").update(candidate.artifact.content,"utf8").digest("hex") ||
       !only(candidate.artifact.producer,["repository","commitSha","sourceRef"]) ||
       !REPO.test(candidate.artifact.producer.repository) ||
       !SHA.test(candidate.artifact.producer.commitSha) ||
@@ -56,7 +59,8 @@ export function gitForgeSourceProposal({candidate,target}) {
     git:Object.freeze({repository:target.repository,branch:target.branch,
       expectedBranchSha:target.expectedBranchSha,
       expectedBlobSha:target.expectedBlobSha,
-      path:candidate.artifact.path,content:candidate.artifact.content,message:target.message}),
+      path:candidate.artifact.path,content:candidate.artifact.content,
+      contentSha256:candidate.artifact.contentSha256,message:target.message}),
     status:"proposal-only",
     sourceReceiving:"unverified",
     effectAuthority:"not-admitted",
