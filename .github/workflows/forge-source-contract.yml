@@ -20,10 +20,10 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Use Node 22
+      - name: Use Node 24
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
-          node-version: '22'
+          node-version: '24'
       - name: Validate and test pure source contract
         run: |
           npm run check
@@ -52,5 +52,13 @@ jobs:
           test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/kernel.mjs)" = "0730feced483602516c0abe11bd77564c2810787"
           test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/nuclei.mjs)" = "db39518eaeeac37fcb2b9e241486656872d0e986"
           node --test test/native-signcraft-chain.test.mjs
+      - name: Exercise authentic released GitHub review planner without private CI
+        run: |
+          set -euo pipefail
+          mkdir -p published-github-engineering
+          npm install --prefix published-github-engineering --ignore-scripts --no-audit --no-fund --no-package-lock --registry=https://registry.561.group/ @red-cup-engineering/github-repository-hosting-service@0.3.3
+          node -e "const p=require('./published-github-engineering/node_modules/@red-cup-engineering/github-repository-hosting-service/package.json');if(p.name!=='@red-cup-engineering/github-repository-hosting-service'||p.version!=='0.3.3')process.exit(1)"
+          ln -s "$GITHUB_WORKSPACE/published-github-engineering/node_modules/@red-cup-engineering/github-repository-hosting-service" node_modules/@red-cup-engineering/github-repository-hosting-service
+          node --test test/native-published-github-planner.test.mjs
       - name: Verify internal package layout without publishing
         run: npm pack --dry-run --ignore-scripts
