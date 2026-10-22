@@ -22,12 +22,13 @@
     "@red-cup-engineering/software-forge-services-section": "0.2.0-dev.0"
   },
   "scripts": {
-    "check": "node --check src/source-proposal.mjs && node --check src/from-software-forge.mjs && node --check test/source-proposal.test.mjs && node --check test/integration-from-software-forge.test.mjs && node --check src/from-signcraft.mjs && node --check test/native-signcraft-chain.test.mjs",
+    "check": "node --check src/source-proposal.mjs && node --check src/from-software-forge.mjs && node --check test/source-proposal.test.mjs && node --check test/integration-from-software-forge.test.mjs && node --check src/from-signcraft.mjs && node --check test/native-signcraft-chain.test.mjs && node --check test/native-published-github-planner.test.mjs",
     "test": "node --test test/source-proposal.test.mjs",
     "verify": "npm run check && npm test",
     "prepublishOnly": "npm run verify && npm run test:integration && npm run test:signcraft-chain",
     "test:integration": "node --test test/integration-from-software-forge.test.mjs",
-    "test:signcraft-chain": "node --test test/native-signcraft-chain.test.mjs"
+    "test:signcraft-chain": "node --test test/native-signcraft-chain.test.mjs",
+    "test:github-compatibility": "node --test test/native-published-github-planner.test.mjs"
   },
   "files": [
     "src",
