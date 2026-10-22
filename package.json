@@ -21,10 +21,11 @@
     "@red-cup-engineering/software-forge-services-section": "0.2.0-dev.0"
   },
   "scripts": {
-    "check": "node --check src/source-proposal.mjs && node --check src/from-software-forge.mjs && node --check test/source-proposal.test.mjs",
+    "check": "node --check src/source-proposal.mjs && node --check src/from-software-forge.mjs && node --check test/source-proposal.test.mjs && node --check test/integration-from-software-forge.test.mjs",
     "test": "node --test test/source-proposal.test.mjs",
     "verify": "npm run check && npm test",
-    "prepublishOnly": "npm run verify"
+    "prepublishOnly": "npm run verify && npm run test:integration",
+    "test:integration": "node --test test/integration-from-software-forge.test.mjs"
   },
   "files": [
     "src",
