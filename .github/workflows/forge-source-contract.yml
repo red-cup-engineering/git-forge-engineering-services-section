@@ -32,13 +32,13 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: red-cup-engineering/software-forge-services-section
-          ref: 546aeabd8110cd3bc82775c16f1478e0996c316c
+          ref: 530aa4f206b8cdadf50b0b0b81acf4b3c575339c
           path: software-forge-upstream
           persist-credentials: false
       - name: Bind the original source export for native integration
         run: |
           set -euo pipefail
-          test "$(git -C software-forge-upstream rev-parse HEAD)" = "546aeabd8110cd3bc82775c16f1478e0996c316c"
+          test "$(git -C software-forge-upstream rev-parse HEAD)" = "530aa4f206b8cdadf50b0b0b81acf4b3c575339c"
           mkdir -p node_modules/@red-cup-engineering
           ln -s "$GITHUB_WORKSPACE/software-forge-upstream" node_modules/@red-cup-engineering/software-forge-services-section
           node --test test/integration-from-software-forge.test.mjs
@@ -48,6 +48,9 @@ jobs:
           npm install --prefix software-forge-upstream --ignore-scripts --no-audit --no-fund --no-package-lock --registry=https://registry.561.group/
           node -e "const p=require('./software-forge-upstream/node_modules/@red-cup-engineering/signcraft/package.json'); if(p.name!=='@red-cup-engineering/signcraft'||p.version!=='0.5.6') process.exit(1)"
           ln -s "$GITHUB_WORKSPACE/software-forge-upstream/node_modules/@red-cup-engineering/signcraft" node_modules/@red-cup-engineering/signcraft
+          test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/generate.mjs)" = "24ee356f70183024f9cf15d192162442a06ac287"
+          test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/kernel.mjs)" = "0730feced483602516c0abe11bd77564c2810787"
+          test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/nuclei.mjs)" = "db39518eaeeac37fcb2b9e241486656872d0e986"
           node --test test/native-signcraft-chain.test.mjs
       - name: Verify internal package layout without publishing
         run: npm pack --dry-run --ignore-scripts
