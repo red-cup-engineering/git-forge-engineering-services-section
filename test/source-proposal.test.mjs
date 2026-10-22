@@ -53,6 +53,8 @@ test("unsafe Git revision, invalid producer and ambiguous content refuse",()=>{
   assert.throws(()=>gitForgeSourceProposal(y),/immutable expected revision/u);
   const z=input();z.candidate.artifact.producer.commitSha="unknown";
   assert.throws(()=>gitForgeSourceProposal(z),/nonauthorizing/u);
+  const p=input();p.candidate.artifact.path=".github/workflows/release.yml";
+  assert.throws(()=>gitForgeSourceProposal(p),/nonauthorizing/u);
   const e=input();e.candidate.artifact.content="";
   assert.throws(()=>gitForgeSourceProposal(e),/nonauthorizing/u);
 });
