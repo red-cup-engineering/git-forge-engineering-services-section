@@ -56,9 +56,15 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p published-github-engineering
-          npm install --prefix published-github-engineering --ignore-scripts --no-audit --no-fund --no-package-lock --registry=https://registry.561.group/ @red-cup-engineering/github-repository-hosting-service@0.3.3
-          node -e "const p=require('./published-github-engineering/node_modules/@red-cup-engineering/github-repository-hosting-service/package.json');if(p.name!=='@red-cup-engineering/github-repository-hosting-service'||p.version!=='0.3.3')process.exit(1)"
-          ln -s "$GITHUB_WORKSPACE/published-github-engineering/node_modules/@red-cup-engineering/github-repository-hosting-service" node_modules/@red-cup-engineering/github-repository-hosting-service
+          # This test imports only the published dependency-free review-call
+          # planner. Do not reify the provider's entire dependency closure:
+          # that exhausted the five-minute runner budget at run 39863469131.
+          npm pack --ignore-scripts --pack-destination published-github-engineering --registry=https://registry.561.group/ @red-cup-engineering/github-repository-hosting-service@0.3.3
+          set -- published-github-engineering/*.tgz
+          test "$#" -eq 1 && test -f "$1"
+          tar -xzf "$1" -C published-github-engineering
+          node -e "const p=require('./published-github-engineering/package/package.json');if(p.name!=='@red-cup-engineering/github-repository-hosting-service'||p.version!=='0.3.3')process.exit(1)"
+          ln -s "$GITHUB_WORKSPACE/published-github-engineering/package" node_modules/@red-cup-engineering/github-repository-hosting-service
           node --test test/native-published-github-planner.test.mjs
       - name: Verify internal package layout without publishing
         run: npm pack --dry-run --ignore-scripts
