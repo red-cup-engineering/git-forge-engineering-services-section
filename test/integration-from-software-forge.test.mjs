@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
 import {gitProposalFromSoftwareForge} from "../src/from-software-forge.mjs";
+import {gitForgeSourceProposal} from "../src/source-proposal.mjs";
+import {forgeSourceCandidate} from "@red-cup-engineering/software-forge-services-section/source-candidate";
 
 const sha="a".repeat(40), b="b".repeat(40), c="c".repeat(40);
 const fixture=()=>({
@@ -49,4 +51,49 @@ test("upstream source path and producer validation still refuse, not self-author
   assert.throws(()=>gitProposalFromSoftwareForge(x),/source-authored code artifact/u);
   const y=fixture();y.softwareCandidateInput.artifact.producer.commitSha="not-a-sha";
   assert.throws(()=>gitProposalFromSoftwareForge(y),/source-authored code artifact/u);
+});
+
+test("Git Forge consumes immutable nested construction from the exact upstream original producer",()=>{
+  const x=fixture();
+  x.softwareCandidateInput.synthesis.steps=[
+    {attr:"source-reviewed",question:{prerequisites:["native-source"]},
+      changed:["source-reviewed"],energyChange:0}
+  ];
+  x.softwareCandidateInput.synthesis.projectedReadings=[
+    {attribute:"source-reviewed",reading:"potential"}
+  ];
+  const original=structuredClone(x);
+  const source=forgeSourceCandidate(x.softwareCandidateInput);
+  assert.equal(source.kind,"software-forge.source-candidate.v1");
+  assert.equal(Object.isFrozen(source.signcraft.construction.steps[0].changed),true);
+  assert.equal(Object.isFrozen(source.signcraft.construction.steps[0].question.prerequisites),true);
+  assert.equal(Object.isFrozen(source.signcraft.construction.projectedReadings[0]),true);
+  assert.throws(()=>source.signcraft.construction.steps[0].changed.push("fabricated-after-admission"),TypeError);
+  assert.throws(()=>source.signcraft.construction.steps[0].question.prerequisites.push("late-condition"),TypeError);
+  const downstream=gitForgeSourceProposal({candidate:source,target:x.target});
+  assert.equal(downstream.kind,"git-forge.source-proposal.v1");
+  assert.equal(downstream.workRef,source.workRef);
+  assert.equal(downstream.git.contentSha256,source.artifact.contentSha256);
+  assert.equal(downstream.git.expectedBranchSha,x.target.expectedBranchSha);
+  assert.equal(downstream.effectAuthority,"not-admitted");
+  assert.deepEqual(downstream.effects,[]);
+  x.softwareCandidateInput.synthesis.steps[0].changed.push("later-author-revision");
+  assert.deepEqual(source.signcraft.construction.steps[0].changed,["source-reviewed"]);
+  assert.deepEqual(downstream.effects,[]);
+  assert.deepEqual(original.softwareCandidateInput.synthesis.steps[0].changed,["source-reviewed"]);
+});
+
+test("Git Forge refuses nonportable nested source evidence through the original software maker",()=>{
+  const withMap=fixture();
+  withMap.softwareCandidateInput.synthesis.steps=[
+    {attr:"source-reviewed",question:{prerequisites:[],hidden:new Map([["invisible","claim"]])},
+      changed:["source-reviewed"],energyChange:0}
+  ];
+  assert.throws(()=>gitProposalFromSoftwareForge(withMap),/bounded acyclic portable value/u);
+  const cycle=fixture(),question={prerequisites:[]};
+  question.loop=question;
+  cycle.softwareCandidateInput.synthesis.steps=[
+    {attr:"source-reviewed",question,changed:["source-reviewed"],energyChange:0}
+  ];
+  assert.throws(()=>gitProposalFromSoftwareForge(cycle),/bounded acyclic portable value/u);
 });
