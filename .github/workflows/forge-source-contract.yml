@@ -32,13 +32,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: red-cup-engineering/software-forge-services-section
-          ref: 530aa4f206b8cdadf50b0b0b81acf4b3c575339c
+          ref: 744cbe9608ad0cfbe4779587ac959018406192f7
           path: software-forge-upstream
           persist-credentials: false
       - name: Bind the original source export for native integration
         run: |
           set -euo pipefail
-          test "$(git -C software-forge-upstream rev-parse HEAD)" = "530aa4f206b8cdadf50b0b0b81acf4b3c575339c"
+          test "$(git -C software-forge-upstream rev-parse HEAD)" = "744cbe9608ad0cfbe4779587ac959018406192f7"
+          test "$(git hash-object software-forge-upstream/src/source-candidate.mjs)" = "829d851928ecc4bac27f485068df7d56c997f044"
           mkdir -p node_modules/@red-cup-engineering
           ln -s "$GITHUB_WORKSPACE/software-forge-upstream" node_modules/@red-cup-engineering/software-forge-services-section
           node --test test/integration-from-software-forge.test.mjs
