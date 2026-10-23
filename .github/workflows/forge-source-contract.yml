@@ -1,0 +1,70 @@
+name: Forge source contract
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "test/**"
+      - "package.json"
+      - ".github/workflows/forge-source-contract.yml"
+permissions:
+  contents: read
+concurrency:
+  group: forge-source-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read exact source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Use Node 24
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: '24'
+      - name: Validate and test pure source contract
+        run: |
+          npm run check
+          npm test
+      - name: Check out exact upstream Software Forge source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: red-cup-engineering/software-forge-services-section
+          ref: 530aa4f206b8cdadf50b0b0b81acf4b3c575339c
+          path: software-forge-upstream
+          persist-credentials: false
+      - name: Bind the original source export for native integration
+        run: |
+          set -euo pipefail
+          test "$(git -C software-forge-upstream rev-parse HEAD)" = "530aa4f206b8cdadf50b0b0b81acf4b3c575339c"
+          mkdir -p node_modules/@red-cup-engineering
+          ln -s "$GITHUB_WORKSPACE/software-forge-upstream" node_modules/@red-cup-engineering/software-forge-services-section
+          node --test test/integration-from-software-forge.test.mjs
+      - name: Run native published SignCraft through pinned Software Forge and Git Forge
+        run: |
+          set -euo pipefail
+          npm install --prefix software-forge-upstream --ignore-scripts --no-audit --no-fund --no-package-lock --registry=https://registry.561.group/
+          node -e "const p=require('./software-forge-upstream/node_modules/@red-cup-engineering/signcraft/package.json'); if(p.name!=='@red-cup-engineering/signcraft'||p.version!=='0.5.6') process.exit(1)"
+          ln -s "$GITHUB_WORKSPACE/software-forge-upstream/node_modules/@red-cup-engineering/signcraft" node_modules/@red-cup-engineering/signcraft
+          test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/generate.mjs)" = "24ee356f70183024f9cf15d192162442a06ac287"
+          test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/kernel.mjs)" = "0730feced483602516c0abe11bd77564c2810787"
+          test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/nuclei.mjs)" = "db39518eaeeac37fcb2b9e241486656872d0e986"
+          node --test test/native-signcraft-chain.test.mjs
+      - name: Exercise authentic released GitHub review planner without private CI
+        run: |
+          set -euo pipefail
+          mkdir -p published-github-engineering
+          # This test imports only the published dependency-free review-call
+          # planner. Do not reify the provider's entire dependency closure:
+          # that exhausted the five-minute runner budget at run 39863469131.
+          npm pack --ignore-scripts --pack-destination published-github-engineering --registry=https://registry.561.group/ @red-cup-engineering/github-repository-hosting-service@0.3.3
+          set -- published-github-engineering/*.tgz
+          test "$#" -eq 1 && test -f "$1"
+          tar -xzf "$1" -C published-github-engineering
+          node -e "const p=require('./published-github-engineering/package/package.json');if(p.name!=='@red-cup-engineering/github-repository-hosting-service'||p.version!=='0.3.3')process.exit(1)"
+          ln -s "$GITHUB_WORKSPACE/published-github-engineering/package" node_modules/@red-cup-engineering/github-repository-hosting-service
+          node --test test/native-published-github-planner.test.mjs
+      - name: Verify internal package layout without publishing
+        run: npm pack --dry-run --ignore-scripts

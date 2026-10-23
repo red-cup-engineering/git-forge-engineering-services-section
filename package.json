@@ -1,16 +1,44 @@
 {
   "name": "@red-cup-engineering/git-forge-services-section",
-  "version": "0.1.0",
+  "version": "0.2.0-dev.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/red-cup-engineering/git-forge-services-section.git"
   },
-  "private": true,
+  "private": false,
   "type": "module",
-  "description": "Groups tooling for git hosting forges. Use when adding or finding integrations with services that host git repositories.",
+  "description": "Git-specific, effect-free source proposal boundary downstream of Software Forge and upstream of GitHub Engineering.",
   "license": "MIT",
   "funding": {
     "type": "individual",
     "url": "https://github.com/561-group/.github/blob/main/TIPS.md"
+  },
+  "exports": {
+    "./source-proposal": "./src/source-proposal.mjs",
+    "./from-software-forge": "./src/from-software-forge.mjs",
+    "./from-signcraft": "./src/from-signcraft.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/software-forge-services-section": "0.2.0-dev.0"
+  },
+  "scripts": {
+    "check": "node --check src/source-proposal.mjs && node --check src/from-software-forge.mjs && node --check test/source-proposal.test.mjs && node --check test/integration-from-software-forge.test.mjs && node --check src/from-signcraft.mjs && node --check test/native-signcraft-chain.test.mjs && node --check test/native-published-github-planner.test.mjs",
+    "test": "node --test test/source-proposal.test.mjs",
+    "verify": "npm run check && npm test",
+    "prepublishOnly": "npm run verify && npm run test:integration && npm run test:signcraft-chain",
+    "test:integration": "node --test test/integration-from-software-forge.test.mjs",
+    "test:signcraft-chain": "node --test test/native-signcraft-chain.test.mjs",
+    "test:github-compatibility": "node --test test/native-published-github-planner.test.mjs"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "publishConfig": {
+    "registry": "https://registry.561.group/",
+    "tag": "next"
   }
 }
