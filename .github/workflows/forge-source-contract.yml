@@ -35,7 +35,7 @@ jobs:
       - name: Check out exact upstream Software Forge source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          repository: red-cup-engineering/software-forge-services-section
+          repository: red-cup-engineering/software-forge-engineering-services-section
           ref: 744cbe9608ad0cfbe4779587ac959018406192f7
           path: software-forge-upstream
           persist-credentials: false
@@ -45,7 +45,7 @@ jobs:
           test "$(git -C software-forge-upstream rev-parse HEAD)" = "744cbe9608ad0cfbe4779587ac959018406192f7"
           test "$(git hash-object software-forge-upstream/src/source-candidate.mjs)" = "829d851928ecc4bac27f485068df7d56c997f044"
           mkdir -p node_modules/@red-cup-engineering
-          ln -s "$GITHUB_WORKSPACE/software-forge-upstream" node_modules/@red-cup-engineering/software-forge-services-section
+          ln -s "$GITHUB_WORKSPACE/software-forge-upstream" node_modules/@red-cup-engineering/software-forge-engineering-services-section
           node --test test/integration-from-software-forge.test.mjs
       - name: Run native published SignCraft through pinned Software Forge and Git Forge
         run: |
@@ -60,7 +60,7 @@ jobs:
       - name: Source-select the original deterministic Code Fabrication maker
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          repository: red-cup-engineering/javascript-node-code-fabrication-services-section
+          repository: red-cup-engineering/javascript-node-code-fabrication-engineering-services-section
           ref: 920908ccbf94b25c40000175607be1bfd1ce92fc
           path: code-fabrication-upstream
           persist-credentials: false
@@ -69,8 +69,8 @@ jobs:
           set -euo pipefail
           test "$(git -C code-fabrication-upstream rev-parse HEAD)" = "920908ccbf94b25c40000175607be1bfd1ce92fc"
           test "$(git hash-object code-fabrication-upstream/scripts/transform-json-schema-to-typescript.mjs)" = "24c2000f79b8a4b941c5d0f7279afa7b1b4dea8b"
-          node -e "const p=require('./code-fabrication-upstream/package.json');if(p.name!=='@red-cup-engineering/javascript-node-code-fabrication-services-section'||p.version!=='0.1.2')process.exit(1)"
-          ln -s "$GITHUB_WORKSPACE/code-fabrication-upstream" node_modules/@red-cup-engineering/javascript-node-code-fabrication-services-section
+          node -e "const p=require('./code-fabrication-upstream/package.json');if(p.name!=='@red-cup-engineering/javascript-node-code-fabrication-engineering-services-section'||p.version!=='0.1.2')process.exit(1)"
+          ln -s "$GITHUB_WORKSPACE/code-fabrication-upstream" node_modules/@red-cup-engineering/javascript-node-code-fabrication-engineering-services-section
           # Source-qualified producer checkout is NOT immutable registry release receiving.
       - name: Receive original published Git source-reader package rather than a checkout
         shell: bash
