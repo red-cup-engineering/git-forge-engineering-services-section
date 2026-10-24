@@ -1,26 +1,51 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
+import {mkdtempSync,rmSync,writeFileSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
+import {pathToFileURL} from "node:url";
 import {makeMachineState} from "@red-cup-engineering/signcraft/inference/kernel";
 import {synthesizeGitForgeProposal} from "../src/from-signcraft.mjs";
 import {planBoundedReviewCall} from "@red-cup-engineering/github-repository-hosting-service/review-call";
+import {renderJsonSchemaModule} from "@red-cup-engineering/javascript-node-code-fabrication-services-section/transform-json-schema-to-typescript";
 
 const signcraftCommit="84ca51d35a7749eb4dc86e2f6845b71ae910940d";
 const workRef="ni:///sha-256;N2B0dn3jHK7-wH7j6URwNpu2C0ofnY9zWH6saAYxI7w";
-const sha="a".repeat(40),branchSha="b".repeat(40);
+const branchSha="b".repeat(40);
+const codeMakerCommit="c209dd81a265ac57fb68c17661e03a3b7bcb0fd9";
+const schemaSourceRef="scripts/transform-json-schema-to-typescript.mjs@e52fad6266a101c21894a880cc62ab298fb532e9";
+// The original Code-owned deterministic JSON Schema generator really produces
+// these code bytes; source-only design admission is NOT proof or customer receipt.
+function codeArtifact({includeOwner=false}={}){
+  const properties={
+    workRef:{type:"string",minLength:1},
+    contentDigest:{type:"string",pattern:"^[a-f0-9]{64}$"}
+  };
+  if(includeOwner) properties.owner={type:"string",minLength:1};
+  const schema={
+    $id:"https://schemas.561.group/forge/record-v1.schema.json",
+    type:"object",additionalProperties:false,
+    required:["workRef","contentDigest"],properties
+  };
+  const content=renderJsonSchemaModule([{
+    exportName:"forgeEvidenceSchema",typeName:"ForgeEvidence",schema
+  }],{format:"javascript"});
+  return {path:"src/qualified.mjs",content,
+    producer:{repository:"red-cup-engineering/javascript-node-code-fabrication-services-section",
+      commitSha:codeMakerCommit,sourceRef:schemaSourceRef}};
+}
 const machine=()=>makeMachineState({
   objects:["a-only","b-only","both"],attributes:["a","b"],
   incidencePairs:[["a-only","a"],["b-only","b"],["both","a"],["both","b"]]
 });
-function source(options={required:["a","b"]}){
+function source(options={required:["a","b"]},design={}){
   const m=machine();
   return synthesizeGitForgeProposal({
     softwareSynthesis:{
       ctx:m.ctx,basis:m.basis,complex:m.cx,valuation:m.v,
       object:"design",options,workRef,
-      artifact:{path:"src/qualified.mjs",content:"export const witness = true;\n",
-        producer:{repository:"red-cup-engineering/computer-code-engineering-services-section",
-          commitSha:sha,sourceRef:"original-code-fabrication-fixture"}},
+      artifact:codeArtifact(design),
       signcraftSource:{repository:"red-cup-engineering/signcraft",
         commitSha:signcraftCommit,exportPath:"./inference/generate"}
     },
@@ -77,4 +102,51 @@ test("bounded SignCraft incompletion cannot reach the released GitHub planner",(
   assert.equal(declined.kind,"git-forge.refusal.v1");
   assert.deepEqual(declined.effects,[]);
   assert.throws(()=>review(declined),TypeError);
+});
+
+test("native original Code maker generates source before both Forges and the released GitHub planner",()=>{
+  const generated=codeArtifact(),one=source(),replayed=source();
+  const plan=review(one,"source-owned-maker-1");
+  assert.equal(one.git.content,generated.content);
+  assert.equal(one.git.content,replayed.git.content);
+  assert.equal(one.source.codeProducer.repository,
+    "red-cup-engineering/javascript-node-code-fabrication-services-section");
+  assert.equal(one.source.codeProducer.commitSha,codeMakerCommit);
+  assert.equal(one.source.codeProducer.sourceRef,schemaSourceRef);
+  assert.match(one.git.content,/Generated from specifications/u);
+  assert.match(one.git.content,/export const forgeEvidenceSchema/u);
+  assert.equal(plan.effect.contentDigest,createHash("sha256").update(generated.content).digest("hex"));
+  assert.equal(plan.effect.contentBytes,Buffer.byteLength(generated.content));
+  assert.equal(one.effectAuthority,"not-admitted");
+  assert.deepEqual(one.effects,[]);
+});
+test("revised design refabricates distinct code and GitHub plan without changing the original Work",()=>{
+  const old=source(),updated=source(undefined,{includeOwner:true});
+  assert.notEqual(old.git.content,updated.git.content);
+  assert.equal(updated.git.content,codeArtifact({includeOwner:true}).content);
+  assert.equal(old.workRef,updated.workRef);
+  assert.equal(old.git.expectedBranchSha,updated.git.expectedBranchSha);
+  assert.notEqual(review(old,"design-v1").effect.contentDigest,
+    review(updated,"design-v2").effect.contentDigest);
+  assert.deepEqual(old.effects,[]);assert.deepEqual(updated.effects,[]);
+});
+test("invalid source binding is refused by the original Code maker before any downstream effects",()=>{
+  assert.throws(()=>renderJsonSchemaModule([{
+    exportName:"default",typeName:"Work",schema:{type:"object"}
+  }],{format:"javascript"}),/non-reserved/u);
+});
+
+test("generated JavaScript really loads as a native module from an isolated output artifact",async (t)=>{
+  const proposal=source();
+  const root=mkdtempSync(join(tmpdir(),"git-forge-source-fabrication-"));
+  t.after(()=>rmSync(root,{recursive:true,force:true}));
+  const file=join(root,"qualified.mjs");
+  writeFileSync(file,proposal.git.content,"utf8");
+  const imported=await import(pathToFileURL(file).href);
+  assert.deepEqual(imported.forgeEvidenceSchema.required,["workRef","contentDigest"]);
+  assert.equal(imported.forgeEvidenceSchema.$id,
+    "https://schemas.561.group/forge/record-v1.schema.json");
+  assert.equal(Object.isFrozen(imported.forgeEvidenceSchema),true);
+  assert.equal(proposal.git.content,codeArtifact().content);
+  assert.deepEqual(proposal.effects,[]);
 });

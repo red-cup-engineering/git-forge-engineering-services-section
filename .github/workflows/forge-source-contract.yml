@@ -53,6 +53,21 @@ jobs:
           test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/kernel.mjs)" = "0730feced483602516c0abe11bd77564c2810787"
           test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/nuclei.mjs)" = "db39518eaeeac37fcb2b9e241486656872d0e986"
           node --test test/native-signcraft-chain.test.mjs
+      - name: Source-select the original deterministic Code Fabrication maker
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: red-cup-engineering/javascript-node-code-fabrication-services-section
+          ref: c209dd81a265ac57fb68c17661e03a3b7bcb0fd9
+          path: code-fabrication-upstream
+          persist-credentials: false
+      - name: Bind exact real code-producing source for original Forge integration
+        run: |
+          set -euo pipefail
+          test "$(git -C code-fabrication-upstream rev-parse HEAD)" = "c209dd81a265ac57fb68c17661e03a3b7bcb0fd9"
+          test "$(git hash-object code-fabrication-upstream/scripts/transform-json-schema-to-typescript.mjs)" = "e52fad6266a101c21894a880cc62ab298fb532e9"
+          node -e "const p=require('./code-fabrication-upstream/package.json');if(p.name!=='@red-cup-engineering/javascript-node-code-fabrication-services-section'||p.version!=='0.1.2')process.exit(1)"
+          ln -s "$GITHUB_WORKSPACE/code-fabrication-upstream" node_modules/@red-cup-engineering/javascript-node-code-fabrication-services-section
+          # Source-qualified producer checkout is NOT immutable registry release receiving.
       - name: Exercise authentic released GitHub review planner without private CI
         run: |
           set -euo pipefail
