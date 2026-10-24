@@ -40,13 +40,13 @@ const machine=()=>makeMachineState({
   objects:["a-only","b-only","both"],attributes:["a","b"],
   incidencePairs:[["a-only","a"],["b-only","b"],["both","a"],["both","b"]]
 });
-function source(options={required:["a","b"]},design={}){
+function source(options={required:["a","b"]},design={},artifact=codeArtifact(design)){
   const m=machine();
   return synthesizeGitForgeProposal({
     softwareSynthesis:{
       ctx:m.ctx,basis:m.basis,complex:m.cx,valuation:m.v,
       object:"design",options,workRef,
-      artifact:codeArtifact(design),
+      artifact,
       signcraftSource:{repository:"red-cup-engineering/signcraft",
         commitSha:signcraftCommit,exportPath:"./inference/generate"}
     },
@@ -191,6 +191,75 @@ test("an actual committed Code maker is selected by the original Git primitive b
   assert.deepEqual(original.effects,[]);
   // A branch name is not an exact source cut, and a made-up full identity
   // cannot be silently replaced by current HEAD.
+  await assert.rejects(read({...selector,commit:"main"}),/exact commit/u);
+  await assert.rejects(read({...selector,commit:"f".repeat(40)}));
+});
+
+test("source-qualified Specification architecture schema is genuinely generated into GitHub review bytes",async(t)=>{
+  // Consume the REAL Specification Engineering candidate schema from its
+  // original merged commit through the earlier merged Git primitive.
+  // These are not invented Design, Proof or 42010 conformance witnesses.
+  const specRepository=fileURLToPath(new URL("../specification-upstream/",import.meta.url));
+  const specPath="data/records/schema/architecture-description.schema.json";
+  const specCommit="333ed53070ae37043ea021ae271039903e5e68eb";
+  const specBlob="c11c025bc0aea8d7dbbd7e271519bf23b718d41f";
+  const root=mkdtempSync(join(tmpdir(),"forge-original-specification-source-"));
+  t.after(()=>rmSync(root,{recursive:true,force:true}));
+  const read=createPinnedSourceReader({
+    scratch:join(root,"objects"),rejectSelectedNonRegular:true,
+    maxRepositories:2,maxPaths:2000,maxBytes:1024*1024
+  });
+  const selector={repository:specRepository,commit:specCommit,
+    scope:"data/records/schema",
+    selectFile:p=>p==="architecture-description.schema.json",
+    enterDirectory:()=>false};
+  const records=await read(selector);
+  assert.equal(records.length,1);
+  const selected=records[0];
+  assert.equal(selected.path,"architecture-description.schema.json");
+  assert.equal(selected.source.commit,specCommit);
+  assert.equal(selected.source.object,specBlob);
+  assert.equal(selected.source.path,specPath);
+  assert.equal(selected.mode,"100644");
+  const file=fileURLToPath(new URL("../specification-upstream/"+specPath,import.meta.url));
+  assert.deepEqual(selected.bytes,readFileSync(file));
+  const schema=JSON.parse(selected.bytes.toString("utf8"));
+  assert.equal(schema.$schema,"https://json-schema.org/draft/2020-12/schema");
+  assert.equal(schema.title,
+    "Source-qualified architecture description projection (NOT a 42010:2022 conformance certificate)");
+  assert.equal(schema.properties.standard.properties.conformance.const,"unassessed");
+  assert.ok(schema.required.includes("upstream"));
+  assert.ok(schema.required.includes("correspondences"));
+  assert.ok(Object.hasOwn(schema.$defs,"refs"));
+  const code=renderJsonSchemaModule([{
+    exportName:"architectureDescriptionCandidateSchema",
+    typeName:"ArchitectureDescriptionCandidate",schema
+  }],{format:"javascript"});
+  const srcRef="red-cup-engineering/specification-engineering-services-section@"+
+    specCommit+":"+specPath+"#"+specBlob;
+  const artifact={path:"src/architecture-description-schema.mjs",content:code,
+    producer:{repository:"red-cup-engineering/javascript-node-code-fabrication-services-section",
+      commitSha:codeMakerCommit,sourceRef:srcRef}};
+  const one=source(undefined,{},artifact),again=source(undefined,{},artifact);
+  assert.equal(one.kind,"git-forge.source-proposal.v1");
+  assert.equal(one.git.content,code);
+  assert.equal(one.git.path,artifact.path);
+  assert.equal(one.git.content,again.git.content);
+  assert.equal(one.workRef,workRef);
+  assert.equal(one.source.codeProducer.sourceRef,srcRef);
+  const plan=review(one,"actual-spec-to-code-to-github");
+  assert.equal(plan.schema,"github.review-call.plan.v1");
+  assert.equal(plan.effect.path,artifact.path);
+  assert.equal(plan.effect.contentDigest,createHash("sha256").update(code).digest("hex"));
+  assert.equal(plan.effect.contentBytes,Buffer.byteLength(code,"utf8"));
+  const emitted=join(root,"architecture-description-schema.mjs");
+  writeFileSync(emitted,one.git.content,"utf8");
+  const imported=await import(pathToFileURL(emitted).href);
+  assert.deepEqual(imported.architectureDescriptionCandidateSchema,schema);
+  assert.equal(Object.isFrozen(imported.architectureDescriptionCandidateSchema),true);
+  assert.equal(one.effectAuthority,"not-admitted");
+  assert.deepEqual(one.effects,[]);
+  assert.ok(!Object.hasOwn(plan,"authority"));
   await assert.rejects(read({...selector,commit:"main"}),/exact commit/u);
   await assert.rejects(read({...selector,commit:"f".repeat(40)}));
 });
