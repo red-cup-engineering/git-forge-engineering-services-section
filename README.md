@@ -34,7 +34,7 @@ operation may take an effect. A Git provider failing to read the branch, a
 source whose SHA has moved, or an unadmitted Office is a held/refused effect.
 
 The original source is merged in `main` as a declared `0.2.0-dev.0` package for `registry.561.group` under the non-default `next` tag; the public native CI does not publish it and requires independent registry receiving before a downstream application selects it. It declares an exact candidate dependency on
-`@red-cup-engineering/software-forge-services-section@0.2.0-dev.0`, but this
+`@red-cup-engineering/software-forge-engineering-services-section@0.2.0-dev.0`, but this
 declaration is not proof of registry publication, exact compatible installed
 bytes, or source-Work receiving. The native dependency-free
 `node --test test/source-proposal.test.mjs` covers positive, different and
