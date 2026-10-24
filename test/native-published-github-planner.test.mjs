@@ -1,14 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
-import {mkdtempSync,rmSync,writeFileSync} from "node:fs";
+import {mkdtempSync,rmSync,writeFileSync,readFileSync} from "node:fs";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
-import {pathToFileURL} from "node:url";
+import {pathToFileURL,fileURLToPath} from "node:url";
 import {makeMachineState} from "@red-cup-engineering/signcraft/inference/kernel";
 import {synthesizeGitForgeProposal} from "../src/from-signcraft.mjs";
 import {planBoundedReviewCall} from "@red-cup-engineering/github-repository-hosting-service/review-call";
 import {renderJsonSchemaModule} from "@red-cup-engineering/javascript-node-code-fabrication-services-section/transform-json-schema-to-typescript";
+import {createPinnedSourceReader} from "@red-cup-engineering/git-source-reading-service/pinned-source-files";
 
 const signcraftCommit="84ca51d35a7749eb4dc86e2f6845b71ae910940d";
 const workRef="ni:///sha-256;N2B0dn3jHK7-wH7j6URwNpu2C0ofnY9zWH6saAYxI7w";
@@ -149,4 +150,47 @@ test("generated JavaScript really loads as a native module from an isolated outp
   assert.equal(Object.isFrozen(imported.forgeEvidenceSchema),true);
   assert.equal(proposal.git.content,codeArtifact().content);
   assert.deepEqual(proposal.effects,[]);
+});
+
+test("an actual committed Code maker is selected by the original Git primitive before native Forge review",async(t)=>{
+  // The actual public upstream checkout is a finite, independently pinned
+  // producer source; the reader never trusts its current worktree branch.
+  const repository=fileURLToPath(new URL("../code-fabrication-upstream/",import.meta.url));
+  const producerFile=fileURLToPath(new URL("../code-fabrication-upstream/scripts/transform-json-schema-to-typescript.mjs",import.meta.url));
+  const originalBlob="e52fad6266a101c21894a880cc62ab298fb532e9";
+  const root=mkdtempSync(join(tmpdir(),"forge-git-source-receiving-"));
+  t.after(()=>rmSync(root,{recursive:true,force:true}));
+  const read=createPinnedSourceReader({
+    scratch:join(root,"original-git-objects"),maxRepositories:2,
+    maxPaths:300,maxBytes:1024*1024,rejectSelectedNonRegular:true
+  });
+  const selector={
+    repository,commit:codeMakerCommit,scope:"scripts",
+    selectFile:p=>p==="transform-json-schema-to-typescript.mjs",
+    enterDirectory:()=>false
+  };
+  const sourceRows=await read(selector);
+  assert.equal(sourceRows.length,1);
+  const row=sourceRows[0];
+  assert.equal(row.path,"transform-json-schema-to-typescript.mjs");
+  assert.equal(row.mode,"100644");
+  assert.equal(row.source.repository,repository);
+  assert.equal(row.source.commit,codeMakerCommit);
+  assert.equal(row.source.object,originalBlob,"native Git object identity must equal the original maker sourceRef");
+  assert.equal(row.source.path,"scripts/transform-json-schema-to-typescript.mjs");
+  assert.equal(row.bytes.toString("utf8"),readFileSync(producerFile,"utf8"),
+    "actual imported source and exact pinned Git bytes cannot silently differ");
+  assert.equal(schemaSourceRef,"scripts/transform-json-schema-to-typescript.mjs@"+row.source.object);
+  // Existing legitimate source continues through SignCraft, Software Forge,
+  // Git Forge and the published GitHub planner without manufacturing effects.
+  const original=source(),published=review(original,"native-git-source-reader");
+  assert.equal(original.source.codeProducer.commitSha,row.source.commit);
+  assert.equal(original.git.content,codeArtifact().content);
+  assert.equal(published.effect.contentDigest,createHash("sha256").update(original.git.content).digest("hex"));
+  assert.equal(original.effectAuthority,"not-admitted");
+  assert.deepEqual(original.effects,[]);
+  // A branch name is not an exact source cut, and a made-up full identity
+  // cannot be silently replaced by current HEAD.
+  await assert.rejects(read({...selector,commit:"main"}),/exact commit/u);
+  await assert.rejects(read({...selector,commit:"f".repeat(40)}));
 });
