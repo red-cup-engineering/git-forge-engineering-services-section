@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
+import {mkdtempSync,rmSync,writeFileSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
+import {pathToFileURL} from "node:url";
 import {makeMachineState} from "@red-cup-engineering/signcraft/inference/kernel";
 import {synthesizeGitForgeProposal} from "../src/from-signcraft.mjs";
 import {planBoundedReviewCall} from "@red-cup-engineering/github-repository-hosting-service/review-call";
@@ -130,4 +134,19 @@ test("invalid source binding is refused by the original Code maker before any do
   assert.throws(()=>renderJsonSchemaModule([{
     exportName:"default",typeName:"Work",schema:{type:"object"}
   }],{format:"javascript"}),/non-reserved/u);
+});
+
+test("generated JavaScript really loads as a native module from an isolated output artifact",async (t)=>{
+  const proposal=source();
+  const root=mkdtempSync(join(tmpdir(),"git-forge-source-fabrication-"));
+  t.after(()=>rmSync(root,{recursive:true,force:true}));
+  const file=join(root,"qualified.mjs");
+  writeFileSync(file,proposal.git.content,"utf8");
+  const imported=await import(pathToFileURL(file).href);
+  assert.deepEqual(imported.forgeEvidenceSchema.required,["workRef","contentDigest"]);
+  assert.equal(imported.forgeEvidenceSchema.$id,
+    "https://schemas.561.group/forge/record-v1.schema.json");
+  assert.equal(Object.isFrozen(imported.forgeEvidenceSchema),true);
+  assert.equal(proposal.git.content,codeArtifact().content);
+  assert.deepEqual(proposal.effects,[]);
 });
