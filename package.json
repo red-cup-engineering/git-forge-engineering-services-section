@@ -1,5 +1,5 @@
 {
-  "name": "@red-cup-engineering/git-forge-engineering-services-section",
+  "name": "@red-cup-engineering/git-forge-services-section",
   "version": "0.2.0-dev.0",
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
     "./from-signcraft": "./src/from-signcraft.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/software-forge-engineering-services-section": "0.2.0-dev.0"
+    "@red-cup-engineering/software-forge-services-section": "0.2.0-dev.0"
   },
   "scripts": {
     "check": "node --check src/source-proposal.mjs && node --check src/from-software-forge.mjs && node --check test/source-proposal.test.mjs && node --check test/integration-from-software-forge.test.mjs && node --check src/from-signcraft.mjs && node --check test/native-signcraft-chain.test.mjs && node --check test/native-published-github-planner.test.mjs",
