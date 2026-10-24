@@ -61,14 +61,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: red-cup-engineering/javascript-node-code-fabrication-services-section
-          ref: c209dd81a265ac57fb68c17661e03a3b7bcb0fd9
+          ref: 920908ccbf94b25c40000175607be1bfd1ce92fc
           path: code-fabrication-upstream
           persist-credentials: false
       - name: Bind exact real code-producing source for original Forge integration
         run: |
           set -euo pipefail
-          test "$(git -C code-fabrication-upstream rev-parse HEAD)" = "c209dd81a265ac57fb68c17661e03a3b7bcb0fd9"
-          test "$(git hash-object code-fabrication-upstream/scripts/transform-json-schema-to-typescript.mjs)" = "e52fad6266a101c21894a880cc62ab298fb532e9"
+          test "$(git -C code-fabrication-upstream rev-parse HEAD)" = "920908ccbf94b25c40000175607be1bfd1ce92fc"
+          test "$(git hash-object code-fabrication-upstream/scripts/transform-json-schema-to-typescript.mjs)" = "24c2000f79b8a4b941c5d0f7279afa7b1b4dea8b"
           node -e "const p=require('./code-fabrication-upstream/package.json');if(p.name!=='@red-cup-engineering/javascript-node-code-fabrication-services-section'||p.version!=='0.1.2')process.exit(1)"
           ln -s "$GITHUB_WORKSPACE/code-fabrication-upstream" node_modules/@red-cup-engineering/javascript-node-code-fabrication-services-section
           # Source-qualified producer checkout is NOT immutable registry release receiving.

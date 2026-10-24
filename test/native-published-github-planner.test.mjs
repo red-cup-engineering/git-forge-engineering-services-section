@@ -14,8 +14,8 @@ import {createPinnedSourceReader} from "@red-cup-engineering/git-source-reading-
 const signcraftCommit="84ca51d35a7749eb4dc86e2f6845b71ae910940d";
 const workRef="ni:///sha-256;N2B0dn3jHK7-wH7j6URwNpu2C0ofnY9zWH6saAYxI7w";
 const branchSha="b".repeat(40);
-const codeMakerCommit="c209dd81a265ac57fb68c17661e03a3b7bcb0fd9";
-const schemaSourceRef="scripts/transform-json-schema-to-typescript.mjs@e52fad6266a101c21894a880cc62ab298fb532e9";
+const codeMakerCommit="920908ccbf94b25c40000175607be1bfd1ce92fc";
+const schemaSourceRef="scripts/transform-json-schema-to-typescript.mjs@24c2000f79b8a4b941c5d0f7279afa7b1b4dea8b";
 // The original Code-owned deterministic JSON Schema generator really produces
 // these code bytes; source-only design admission is NOT proof or customer receipt.
 function codeArtifact({includeOwner=false}={}){
@@ -148,6 +148,11 @@ test("generated JavaScript really loads as a native module from an isolated outp
   assert.equal(imported.forgeEvidenceSchema.$id,
     "https://schemas.561.group/forge/record-v1.schema.json");
   assert.equal(Object.isFrozen(imported.forgeEvidenceSchema),true);
+  assert.equal(Object.isFrozen(imported.forgeEvidenceSchema.properties),true);
+  assert.equal(Object.isFrozen(imported.forgeEvidenceSchema.required),true);
+  assert.equal(Object.isFrozen(imported.forgeEvidenceSchema.properties.workRef),true);
+  assert.throws(()=>{imported.forgeEvidenceSchema.properties.workRef.minLength=0;},TypeError,
+    "a generated source-constraint may not be weakened after the GitHub review plan");
   assert.equal(proposal.git.content,codeArtifact().content);
   assert.deepEqual(proposal.effects,[]);
 });
@@ -157,7 +162,7 @@ test("an actual committed Code maker is selected by the original Git primitive b
   // producer source; the reader never trusts its current worktree branch.
   const repository=fileURLToPath(new URL("../code-fabrication-upstream/",import.meta.url));
   const producerFile=fileURLToPath(new URL("../code-fabrication-upstream/scripts/transform-json-schema-to-typescript.mjs",import.meta.url));
-  const originalBlob="e52fad6266a101c21894a880cc62ab298fb532e9";
+  const originalBlob="24c2000f79b8a4b941c5d0f7279afa7b1b4dea8b";
   const root=mkdtempSync(join(tmpdir(),"forge-git-source-receiving-"));
   t.after(()=>rmSync(root,{recursive:true,force:true}));
   const read=createPinnedSourceReader({
@@ -257,6 +262,12 @@ test("source-qualified Specification architecture schema is genuinely generated 
   const imported=await import(pathToFileURL(emitted).href);
   assert.deepEqual(imported.architectureDescriptionCandidateSchema,schema);
   assert.equal(Object.isFrozen(imported.architectureDescriptionCandidateSchema),true);
+  assert.equal(Object.isFrozen(imported.architectureDescriptionCandidateSchema.properties.standard.properties.conformance),true);
+  assert.equal(Object.isFrozen(imported.architectureDescriptionCandidateSchema.required),true);
+  assert.throws(()=>{
+    imported.architectureDescriptionCandidateSchema.properties.standard.properties.conformance.const="certified";
+  },TypeError,"installed Code must preserve the unassessed original source after publication/review planning");
+  assert.equal(imported.architectureDescriptionCandidateSchema.properties.standard.properties.conformance.const,"unassessed");
   assert.equal(one.effectAuthority,"not-admitted");
   assert.deepEqual(one.effects,[]);
   assert.ok(!Object.hasOwn(plan,"authority"));
