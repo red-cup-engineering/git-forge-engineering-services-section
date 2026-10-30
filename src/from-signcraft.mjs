@@ -7,12 +7,12 @@ import {gitForgeSourceProposal} from "./source-proposal.mjs";
  * still do not grant a GitHub/host effect. The native GitHub owner must
  * independently receive source, standing and authorized Work.
  */
-export function synthesizeGitForgeProposal({softwareSynthesis,target}) {
+export function synthesizeGitForgeProposal({softwareSynthesis,target,sourceSelection}) {
   const candidate=synthesizeForgeSource(softwareSynthesis);
   if (candidate.kind!=="software-forge.source-candidate.v1") {
     return Object.freeze({kind:"git-forge.refusal.v1",
       code:"UPSTREAM_SIGNCRAFT_CONSTRUCTION_REFUSED",
       original:candidate,effects:Object.freeze([])});
   }
-  return gitForgeSourceProposal({candidate,target});
+  return gitForgeSourceProposal({candidate,target,sourceSelection});
 }

@@ -1,70 +1,49 @@
 /**
- * A pure Git SOURCE proposal between Software Forge and a provider adapter.
- * This is not a commit/branch, credential grant, PR, approved deployment or
- * executed Git action. Native Git Services owns repository tree mechanics.
+ * One Git-specific effect-FREE proposal boundary. Software Forge owns source
+ * candidate admission, provenance replay, SignCraft synthesis and Code bytes.
+ * Git Forge owns only the selected Git target and its exact revision guards;
+ * GitHub provider admission and writes remain with GitHub Engineering.
  */
-import {createHash} from "node:crypto";
+import {qualifyForgeSourceCandidate} from "@red-cup-engineering/software-forge-services-section/source-candidate";
+import {retainedCarrier} from "@red-cup-engineering/signcraft/cell";
+
 const SHA=/^[0-9a-f]{40}$/u;
 const REPO=/^[a-z0-9][a-z0-9.-]*\/[a-z0-9][a-z0-9._-]*$/u;
 const REF=/^(?!\/|.*\.\.|.*\/\.)(?!.*\.lock(?:\/|$))[A-Za-z0-9][A-Za-z0-9._\/-]{0,199}$/u;
-const PATH=/^(?!\/)(?!.*\/\/)[A-Za-z0-9._\/-]+$/u;
 const named=x=>typeof x==="string"&&x.trim()!==""&&x.length<=512&&!/[\u0000-\u001f\u007f]/u.test(x);
 const only=(x,names)=>x&&typeof x==="object"&&!Array.isArray(x)&&Object.keys(x).every(k=>names.includes(k));
 
-export function gitForgeSourceProposal({candidate,target}) {
-  if (!only(candidate,["kind","admission","workRef","signcraft","artifact","receiving","effects"]) ||
-      candidate.kind!=="software-forge.source-candidate.v1" ||
-      candidate.admission!=="provisional-source-candidate" ||
-      !named(candidate.workRef) ||
-      !only(candidate.signcraft,["source","construction"]) ||
-      candidate.signcraft.construction?.kind!=="signcraft.semioticSynthesis.v1" ||
-      candidate.signcraft.construction?.admissionLevel!=="counterfactual" ||
-      candidate.signcraft.construction?.complete!==true ||
-      candidate.signcraft.construction?.searchTruncated!==false ||
-      !Array.isArray(candidate.signcraft.construction?.openRequirements) ||
-      candidate.signcraft.construction.openRequirements.length!==0 ||
-      !Array.isArray(candidate.signcraft.construction?.violatedExclusions) ||
-      candidate.signcraft.construction.violatedExclusions.length!==0 ||
-      candidate.signcraft.source?.repository!=="red-cup-engineering/signcraft" ||
-      !SHA.test(candidate.signcraft.source?.commitSha??"") ||
-      candidate.signcraft.source?.exportPath!=="./inference/generate" ||
-      !only(candidate.artifact,["path","content","contentSha256","producer"]) ||
-      !named(candidate.artifact.path) || !PATH.test(candidate.artifact.path) ||
-      candidate.artifact.path.split("/").some(p=>p==="."||p===".."||p==="") ||
-      /^(?:\.git(?:\/|$)|\.github\/(?:workflows|CODEOWNERS|dependabot\.ya?ml)(?:\/|$))/iu.test(candidate.artifact.path) ||
-      typeof candidate.artifact.content!=="string" || !candidate.artifact.content.trim() ||
-      Buffer.byteLength(candidate.artifact.content)>1_000_000 ||
-      !/^[0-9a-f]{64}$/u.test(candidate.artifact.contentSha256??"") ||
-      candidate.artifact.contentSha256!==createHash("sha256").update(candidate.artifact.content,"utf8").digest("hex") ||
-      !only(candidate.artifact.producer,["repository","commitSha","sourceRef"]) ||
-      !REPO.test(candidate.artifact.producer.repository) ||
-      !SHA.test(candidate.artifact.producer.commitSha) ||
-      !named(candidate.artifact.producer.sourceRef) ||
-      !Array.isArray(candidate.effects) || candidate.effects.length!==0)
-    throw new TypeError("exact bounded nonauthorizing software forge candidate required");
-  if (!only(target,["repository","branch","expectedBranchSha","expectedBlobSha","message"]) ||
-      !REPO.test(target.repository??"") || !REF.test(target.branch??"") ||
-      target.branch.endsWith("/") || !SHA.test(target.expectedBranchSha??"") ||
-      !(target.expectedBlobSha===null || SHA.test(target.expectedBlobSha??"")) ||
-      !named(target.message) || target.message.length>240)
+/** Receive source under an ORIGINAL independently selected Work/SignCraft/Code
+ * producer/digest. A candidate may NOT supply its own sourceSelection, and
+ * successful replay does not assert source authentication or a GitHub grant.
+ * The exact Git target is checked and retained by the original SignCell data
+ * carrier; executable getters never run here either. */
+export function gitForgeSourceProposal({candidate,target,sourceSelection}) {
+  const original=qualifyForgeSourceCandidate(candidate,sourceSelection);
+  const gitTarget=retainedCarrier(target);
+  if (!only(gitTarget,["repository","branch","expectedBranchSha","expectedBlobSha","message"]) ||
+      !REPO.test(gitTarget.repository??"") || !REF.test(gitTarget.branch??"") ||
+      gitTarget.branch.endsWith("/") || !SHA.test(gitTarget.expectedBranchSha??"") ||
+      !(gitTarget.expectedBlobSha===null || SHA.test(gitTarget.expectedBlobSha??"")) ||
+      !named(gitTarget.message) || gitTarget.message.length>240)
     throw new TypeError("exact named Git source and immutable expected revision required");
 
-  return Object.freeze({
+  return retainedCarrier({
     kind:"git-forge.source-proposal.v1",
-    workRef:candidate.workRef,
-    source:Object.freeze({
-      signcraft:Object.freeze({...candidate.signcraft.source}),
-      codeProducer:Object.freeze({...candidate.artifact.producer})
-    }),
-    git:Object.freeze({repository:target.repository,branch:target.branch,
-      expectedBranchSha:target.expectedBranchSha,
-      expectedBlobSha:target.expectedBlobSha,
-      path:candidate.artifact.path,content:candidate.artifact.content,
-      contentSha256:candidate.artifact.contentSha256,message:target.message}),
+    workRef:original.workRef,
+    source:{
+      signcraft:original.signcraft.source,
+      codeProducer:original.artifact.producer
+    },
+    git:{repository:gitTarget.repository,branch:gitTarget.branch,
+      expectedBranchSha:gitTarget.expectedBranchSha,
+      expectedBlobSha:gitTarget.expectedBlobSha,
+      path:original.artifact.path,content:original.artifact.content,
+      contentSha256:original.artifact.contentSha256,message:gitTarget.message},
     status:"proposal-only",
     sourceReceiving:"unverified",
     effectAuthority:"not-admitted",
     installedGitConsumer:"not-observed",
-    effects:Object.freeze([])
+    effects:[]
   });
 }

@@ -18,12 +18,15 @@ The upstream package is explicitly consumed at
 `./from-software-forge`; the dependency-free validation is at
 `./source-proposal`.
 
-`gitForgeSourceProposal({candidate,target})` takes only a currently typed
-`software-forge.source-candidate.v1`, containing a counterfactual SignCraft
-construction, one real source-authored code artifact and one original Work
-reference. It binds a named Git repository, exact expected branch commit,
-optional exact expected blob commit, authoring message and exact code bytes
-into `git-forge.source-proposal.v1`.
+`gitForgeSourceProposal({candidate,target,sourceSelection})` consumes the
+**original Software Forge** `qualifyForgeSourceCandidate` operation, not a
+second hand-written SignCraft/path/code-digest validator. The original Work,
+SignCraft revision, Code producer and candidate content digest must be selected
+**independently of the transported candidate** by the actual source/Work
+receiver. A candidate cannot vouch for its own source by re-hashing its body.
+Git Forge adds only its Git-specific branch/ref, repository, expected source
+revision, message and protected-path owner boundary, retaining immutable
+`git-forge.source-proposal.v1` bytes through the original SignCell carrier.
 
 The result is **not** a branch, commit, executed Run, self-granted approval,
 received source, or completed Work. It contains no Git transport method and
@@ -33,10 +36,16 @@ qualifies and converts this into the existing
 operation may take an effect. A Git provider failing to read the branch, a
 source whose SHA has moved, or an unadmitted Office is a held/refused effect.
 
-The original source is merged in `main` as a declared `0.2.0-dev.0` package for `registry.561.group` under the non-default `next` tag; the public native CI does not publish it and requires independent registry receiving before a downstream application selects it. It declares an exact candidate dependency on
-`@red-cup-engineering/software-forge-services-section@0.2.0-dev.0`, but this
-declaration is not proof of registry publication, exact compatible installed
-bytes, or source-Work receiving. The native dependency-free
+The historical merged Git Forge baseline is `0.2.0-dev.0`; this source migration
+selects the exact current Software Forge `0.3.0` **source at commit
+`d72facf66cd5a841b02c4750b9355ee62a359735`** and SignCraft `0.6.2`.
+Its original source CI checks immutable upstream source, executes the real
+Code/SignCraft/Forge integration and retains the native published GitHub review
+planner. A separate published-closure job must independently install the
+registry package and verify its source Git blob against the exact accepted
+upstream. A source checkout is not a registered immutable release: the
+manifest's requested dependency does not establish a valid installed product,
+or authorize replacing the old released dependency in deployed consumers. The native dependency-free
 `node --test test/source-proposal.test.mjs` covers positive, different and
 adverse cases; the cross-package adapter additionally requires the actual
 published upstream release. No GitHub Gitlink is reparented until exact
@@ -66,3 +75,27 @@ Engineering effect host and real beneficiary-accepted Work.
 
 Original 561 Group Work:
 `ni:///sha-256;N2B0dn3jHK7-wH7j6URwNpu2C0ofnY9zWH6saAYxI7w`.
+
+
+## Original source-selection receipt and the publisher gate
+
+The caller of `gitProposalFromSoftwareForge` or `synthesizeGitForgeProposal`
+provides a separate `sourceSelection` (original `workRef`, SignCraft
+`{repository,commitSha,exportPath}`, artifact `{path,contentSha256,producer}`).
+The caller must obtain that exact selection from actual Work, source and Code
+custody, not reconstruct it from a potentially tampered candidate.
+
+Both adapters invoke the original Forge source maker and pass the original
+selection into the Git source proposal function. Upstream replay, bounds,
+receiving-state refusal, artifact identity and inert-carrier checks are not
+reimplemented in this package. Git Forge only makes the Git-specific proposal;
+a Git source reader, GitHub provider effect, publisher and beneficiary each
+retain their separate receiving authority.
+
+The source CI runs the original upstream Git checkout, real package source and
+consumer tests and the existing original Code → Specification → Git provider
+planner. The second CI job requires **actual published** source-identical
+Software Forge package bytes rather than passing a Git checkout as a released
+dependency. Until the original publisher qualifies/releases such a distinct
+immutable edition and the real installed consumer passes, that job must stay
+unreceived and this migration cannot be marked a supported released API.
