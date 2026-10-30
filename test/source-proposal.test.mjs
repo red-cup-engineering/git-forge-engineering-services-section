@@ -34,6 +34,11 @@ const input=()=>{
   };
 };
 
+// The original upstream maker returns a *deeply frozen* carrier. Tampering
+// requires a separately transported copy; modifying the original in-place
+// must be rejected before Git Forge is even called.
+const mutableTransport=()=>{const x=input();x.candidate=structuredClone(x.candidate);return x;};
+
 test("Git Forge uses the actual upstream source-maker, preserves original bytes and never executes Git",()=>{
   const x=input(),before=structuredClone(x),out=gitForgeSourceProposal(x);
   assert.equal(out.kind,"git-forge.source-proposal.v1");
@@ -64,27 +69,27 @@ test("tampering with content, digest or a recomputed digest refuses the upstream
     p=>{p.artifact.content="export const bridge=false;\n";p.artifact.contentSha256=createHash("sha256").update(p.artifact.content).digest("hex");}
   ];
   for(const change of changes){
-    const x=input();change(x.candidate);
+    const x=mutableTransport();change(x.candidate);
     assert.throws(()=>gitForgeSourceProposal(x),TypeError);
   }
 });
 test("provisional cannot assert approval, successful synthesis or an executed effect",()=>{
-  const originalCandidate=input();
+  const originalCandidate=mutableTransport();
   originalCandidate.candidate.approved=true;
   assert.throws(()=>gitForgeSourceProposal(originalCandidate),TypeError);
   const y=input();y.candidate.signcraft.construction.openRequirements=["still-open"];
   assert.throws(()=>gitForgeSourceProposal(y),TypeError);
-  const z=input();z.candidate.effects.push({kind:"git.push"});
+  const z=mutableTransport();z.candidate.effects.push({kind:"git.push"});
   assert.throws(()=>gitForgeSourceProposal(z),TypeError);
 });
 test("upstream requires independently selected original Work and Code identity",()=>{
   const inputWithoutSelection=input();delete inputWithoutSelection.sourceSelection;
   assert.throws(()=>gitForgeSourceProposal(inputWithoutSelection),TypeError);
-  const moved=input();moved.candidate.signcraft.source.commitSha="d".repeat(40);
+  const moved=mutableTransport();moved.candidate.signcraft.source.commitSha="d".repeat(40);
   assert.throws(()=>gitForgeSourceProposal(moved),TypeError);
-  const changedMaker=input();changedMaker.candidate.artifact.producer.sourceRef="unwitnessed";
+  const changedMaker=mutableTransport();changedMaker.candidate.artifact.producer.sourceRef="unwitnessed";
   assert.throws(()=>gitForgeSourceProposal(changedMaker),TypeError);
-  const foreignWork=input();foreignWork.candidate.workRef="ni:///sha-256;foreign";
+  const foreignWork=mutableTransport();foreignWork.candidate.workRef="ni:///sha-256;foreign";
   assert.throws(()=>gitForgeSourceProposal(foreignWork),TypeError);
 });
 test("unsafe Git revision and unsupported source paths refuse at their actual owner",()=>{
@@ -92,11 +97,11 @@ test("unsafe Git revision and unsupported source paths refuse at their actual ow
   assert.throws(()=>gitForgeSourceProposal(x),/immutable expected revision/u);
   const y=input();y.target.branch="../escaped";
   assert.throws(()=>gitForgeSourceProposal(y),/immutable expected revision/u);
-  const z=input();z.candidate.artifact.producer.commitSha="unknown";
+  const z=mutableTransport();z.candidate.artifact.producer.commitSha="unknown";
   assert.throws(()=>gitForgeSourceProposal(z),TypeError);
-  const p=input();p.candidate.artifact.path=".github/workflows/release.yml";
+  const p=mutableTransport();p.candidate.artifact.path=".github/workflows/release.yml";
   assert.throws(()=>gitForgeSourceProposal(p),TypeError);
-  const e=input();e.candidate.artifact.content="";
+  const e=mutableTransport();e.candidate.artifact.content="";
   assert.throws(()=>gitForgeSourceProposal(e),TypeError);
 });
 test("original target inert-data admission refuses executable Git branch getters without running them",()=>{
