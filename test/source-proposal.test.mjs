@@ -77,7 +77,7 @@ test("provisional cannot assert approval, successful synthesis or an executed ef
   const originalCandidate=mutableTransport();
   originalCandidate.candidate.approved=true;
   assert.throws(()=>gitForgeSourceProposal(originalCandidate),TypeError);
-  const y=input();y.candidate.signcraft.construction.openRequirements=["still-open"];
+  const y=mutableTransport();y.candidate.signcraft.construction.openRequirements=["still-open"];
   assert.throws(()=>gitForgeSourceProposal(y),TypeError);
   const z=mutableTransport();z.candidate.effects.push({kind:"git.push"});
   assert.throws(()=>gitForgeSourceProposal(z),TypeError);
