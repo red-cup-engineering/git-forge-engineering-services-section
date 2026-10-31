@@ -24,11 +24,11 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Select original Software Forge qualified source, not a stale registry alias
+      - name: Select the original Software Forge released source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: red-cup-engineering/software-forge-engineering-services-section
-          ref: d72facf66cd5a841b02c4750b9355ee62a359735
+          ref: 2ed0564f05002ce58ccabccc0bb66d18c2098877
           path: software-forge-upstream
           persist-credentials: false
       - name: Use the publisher-compatible Node runtime
@@ -38,7 +38,7 @@ jobs:
       - name: Source-select Forge and install its actual original upstream dependency closure
         run: |
           set -euo pipefail
-          test "$(git -C software-forge-upstream rev-parse HEAD)" = "d72facf66cd5a841b02c4750b9355ee62a359735"
+          test "$(git -C software-forge-upstream rev-parse HEAD)" = "2ed0564f05002ce58ccabccc0bb66d18c2098877"
           test "$(git hash-object software-forge-upstream/src/source-candidate.mjs)" = "9357d24c8c9ed6f8bd1ffe35c51dc00702ea2e9b"
           node -e "const git=require('./package.json'),source=require('./software-forge-upstream/package.json');if(git.dependencies[source.name]!==source.version)throw new Error('Git Forge source dependency declaration is not the selected upstream Forge source edition')"
           npm install --prefix software-forge-upstream --ignore-scripts --no-audit --no-fund --no-package-lock --registry=https://registry.561.group/
@@ -137,6 +137,7 @@ jobs:
           set -euo pipefail
           npm install --ignore-scripts --no-audit --no-fund --no-package-lock --registry=https://registry.561.group/
           npm ls --omit=dev --depth=0
+          node -e "const p=require('./node_modules/@red-cup-engineering/software-forge-services-section/package.json');if(p.version!=='0.3.1'||p.gitHead!=='2ed0564f05002ce58ccabccc0bb66d18c2098877')throw new Error('Published Software Forge identity differs from the selected original release')"
           published="$(git hash-object node_modules/@red-cup-engineering/software-forge-services-section/src/source-candidate.mjs)"
           expected="9357d24c8c9ed6f8bd1ffe35c51dc00702ea2e9b"
           if [ "$published" != "$expected" ]; then

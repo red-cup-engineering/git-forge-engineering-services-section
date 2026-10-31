@@ -15,8 +15,9 @@ Git Forge is the intermediate **Git-specific source proposal boundary** between
 the existing Software Forge package and provider-specific GitHub Engineering.
 It does not replace the native Git Services tree/read/write implementation.
 The upstream package is explicitly consumed at
-`./from-software-forge`; the dependency-free validation is at
-`./source-proposal`.
+`./from-software-forge`; Git-specific proposal admission is at
+`./source-proposal`, using Software Forge qualification and the original
+SignCraft retained carrier.
 
 `gitForgeSourceProposal({candidate,target,sourceSelection})` consumes the
 **original Software Forge** `qualifyForgeSourceCandidate` operation, not a
@@ -25,8 +26,9 @@ SignCraft revision, Code producer and candidate content digest must be selected
 **independently of the transported candidate** by the actual source/Work
 receiver. A candidate cannot vouch for its own source by re-hashing its body.
 Git Forge adds only its Git-specific branch/ref, repository, expected source
-revision, message and protected-path owner boundary, retaining immutable
+revision and message boundary, retaining immutable
 `git-forge.source-proposal.v1` bytes through the original SignCell carrier.
+Software Forge retains ownership of artifact and protected-path admission.
 
 The result is **not** a branch, commit, executed Run, self-granted approval,
 received source, or completed Work. It contains no Git transport method and
@@ -36,16 +38,17 @@ qualifies and converts this into the existing
 operation may take an effect. A Git provider failing to read the branch, a
 source whose SHA has moved, or an unadmitted Office is a held/refused effect.
 
-The historical merged Git Forge baseline is `0.2.0-dev.0`; this source migration
-selects the exact current Software Forge `0.3.0` **source at commit
-`d72facf66cd5a841b02c4750b9355ee62a359735`** and SignCraft `0.6.2`.
+The historical merged Git Forge baseline is `0.2.0-dev.0`; this `0.2.0` source
+release declaration selects the issued Software Forge `0.3.1` **source at commit
+`2ed0564f05002ce58ccabccc0bb66d18c2098877`** and SignCraft `0.6.2`.
 Its original source CI checks immutable upstream source, executes the real
 Code/SignCraft/Forge integration and retains the native published GitHub review
 planner. A separate published-closure job must independently install the
-registry package and verify its source Git blob against the exact accepted
+registry package and verify its version, publisher-recorded Git head and source
+Git blob `9357d24c8c9ed6f8bd1ffe35c51dc00702ea2e9b` against the exact accepted
 upstream. A source checkout is not a registered immutable release: the
 manifest's requested dependency does not establish a valid installed product,
-or authorize replacing the old released dependency in deployed consumers. The native dependency-free
+or authorize replacing the old released dependency in deployed consumers. The native
 `node --test test/source-proposal.test.mjs` covers positive, different and
 adverse cases; the cross-package adapter additionally requires the actual
 published upstream release. No GitHub Gitlink is reparented until exact
@@ -95,7 +98,8 @@ retain their separate receiving authority.
 The source CI runs the original upstream Git checkout, real package source and
 consumer tests and the existing original Code → Specification → Git provider
 planner. The second CI job requires **actual published** source-identical
-Software Forge package bytes rather than passing a Git checkout as a released
-dependency. Until the original publisher qualifies/releases such a distinct
-immutable edition and the real installed consumer passes, that job must stay
-unreceived and this migration cannot be marked a supported released API.
+Software Forge package bytes. The selected `0.3.1` edition has been issued by
+the original publisher; the source and published-closure gates must still pass
+against each exact Git Forge candidate. Git Forge's own publication, an
+installed GitHub effect host and beneficiary Work receiving remain separate
+boundaries.
