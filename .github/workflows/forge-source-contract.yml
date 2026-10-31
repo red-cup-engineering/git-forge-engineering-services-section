@@ -1,4 +1,4 @@
-name: Forge source contract
+name: Git Forge original source chain and published closure receiving
 on:
   pull_request:
     paths:
@@ -13,50 +13,50 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: forge-source-${{ github.ref }}
+  group: git-forge-receive-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  contract:
+  original-source-chain:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
-      - name: Read exact source
+      - name: Read exact Git Forge source without retaining credentials
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Use Node 24
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
-        with:
-          node-version: '24'
-      - name: Validate and test pure source contract
-        run: |
-          npm run check
-          npm test
-      - name: Check out exact upstream Software Forge source
+      - name: Select the original Software Forge released source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: red-cup-engineering/software-forge-engineering-services-section
-          ref: 744cbe9608ad0cfbe4779587ac959018406192f7
+          ref: 2ed0564f05002ce58ccabccc0bb66d18c2098877
           path: software-forge-upstream
           persist-credentials: false
-      - name: Bind the original source export for native integration
+      - name: Use the publisher-compatible Node runtime
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: '24'
+      - name: Source-select Forge and install its actual original upstream dependency closure
         run: |
           set -euo pipefail
-          test "$(git -C software-forge-upstream rev-parse HEAD)" = "744cbe9608ad0cfbe4779587ac959018406192f7"
-          test "$(git hash-object software-forge-upstream/src/source-candidate.mjs)" = "829d851928ecc4bac27f485068df7d56c997f044"
+          test "$(git -C software-forge-upstream rev-parse HEAD)" = "2ed0564f05002ce58ccabccc0bb66d18c2098877"
+          test "$(git hash-object software-forge-upstream/src/source-candidate.mjs)" = "9357d24c8c9ed6f8bd1ffe35c51dc00702ea2e9b"
+          node -e "const git=require('./package.json'),source=require('./software-forge-upstream/package.json');if(git.dependencies[source.name]!==source.version)throw new Error('Git Forge source dependency declaration is not the selected upstream Forge source edition')"
+          npm install --prefix software-forge-upstream --ignore-scripts --no-audit --no-fund --no-package-lock --registry=https://registry.561.group/
+          node -e "const own=require('./package.json'),source=require('./software-forge-upstream/node_modules/@red-cup-engineering/signcraft/package.json');if(own.dependencies[source.name]!==source.version)throw new Error('SignCraft dependency does not match original selected version')"
+          # These exact input carriers are owned by the original Forge native
+          # receiving run 41004342899, not invented replacements.
           mkdir -p node_modules/@red-cup-engineering
           ln -s "$GITHUB_WORKSPACE/software-forge-upstream" node_modules/@red-cup-engineering/software-forge-services-section
-          node --test test/integration-from-software-forge.test.mjs
-      - name: Run native published SignCraft through pinned Software Forge and Git Forge
+          ln -s "$GITHUB_WORKSPACE/software-forge-upstream/node_modules/@red-cup-engineering/signcraft" node_modules/@red-cup-engineering/signcraft
+          npm run check --prefix software-forge-upstream
+          npm test --prefix software-forge-upstream
+      - name: Reuse original Software Forge contract for Git-specific source and complete SignCraft integration
         run: |
           set -euo pipefail
-          npm install --prefix software-forge-upstream --ignore-scripts --no-audit --no-fund --no-package-lock --registry=https://registry.561.group/
-          node -e "const p=require('./software-forge-upstream/node_modules/@red-cup-engineering/signcraft/package.json'); if(p.name!=='@red-cup-engineering/signcraft'||p.version!=='0.5.6') process.exit(1)"
-          ln -s "$GITHUB_WORKSPACE/software-forge-upstream/node_modules/@red-cup-engineering/signcraft" node_modules/@red-cup-engineering/signcraft
-          test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/generate.mjs)" = "24ee356f70183024f9cf15d192162442a06ac287"
-          test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/kernel.mjs)" = "0730feced483602516c0abe11bd77564c2810787"
-          test "$(git hash-object software-forge-upstream/node_modules/@red-cup-engineering/signcraft/src/inference/nuclei.mjs)" = "db39518eaeeac37fcb2b9e241486656872d0e986"
-          node --test test/native-signcraft-chain.test.mjs
+          npm run check
+          npm test
+          npm run test:integration
+          npm run test:signcraft-chain
       - name: Source-select the original deterministic Code Fabrication maker
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -119,3 +119,33 @@ jobs:
           node --test test/native-published-github-planner.test.mjs
       - name: Verify internal package layout without publishing
         run: npm pack --dry-run --ignore-scripts
+
+  published-closure-qualification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Read Git Forge source without retaining credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Use Node 24
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: '24'
+      - name: Receive ACTUAL published upstream source, not a checked-out substitution
+        run: |
+          set -euo pipefail
+          npm install --ignore-scripts --no-audit --no-fund --no-package-lock --registry=https://registry.561.group/
+          npm ls --omit=dev --depth=0
+          node -e "const p=require('./node_modules/@red-cup-engineering/software-forge-services-section/package.json');if(p.version!=='0.3.1'||p.gitHead!=='2ed0564f05002ce58ccabccc0bb66d18c2098877')throw new Error('Published Software Forge identity differs from the selected original release')"
+          published="$(git hash-object node_modules/@red-cup-engineering/software-forge-services-section/src/source-candidate.mjs)"
+          expected="9357d24c8c9ed6f8bd1ffe35c51dc00702ea2e9b"
+          if [ "$published" != "$expected" ]; then
+            printf 'UPSTREAM_FORGE_PUBLICATION_NOT_RECEIVED expected-source=%s registry-source=%s\n' "$expected" "$published" >&2
+            exit 1
+          fi
+          npm test
+          npm run test:integration
+          npm run test:signcraft-chain
+          # This is consumer/source compatibility, NOT authority to write Git,
+          # an installed Guix fabricator or beneficiary Work settlement.

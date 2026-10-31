@@ -11,7 +11,7 @@ import {planBoundedReviewCall} from "@red-cup-engineering/github-repository-host
 import {renderJsonSchemaModule} from "@red-cup-engineering/javascript-node-code-fabrication-services-section/transform-json-schema-to-typescript";
 import {createPinnedSourceReader} from "@red-cup-engineering/git-source-reading-service/pinned-source-files";
 
-const signcraftCommit="84ca51d35a7749eb4dc86e2f6845b71ae910940d";
+const signcraftCommit="43cc43ccbca025b22749acf61dd60cab2089d47f";
 const workRef="ni:///sha-256;N2B0dn3jHK7-wH7j6URwNpu2C0ofnY9zWH6saAYxI7w";
 const branchSha="b".repeat(40);
 const codeMakerCommit="920908ccbf94b25c40000175607be1bfd1ce92fc";
@@ -42,14 +42,20 @@ const machine=()=>makeMachineState({
 });
 function source(options={required:["a","b"]},design={},artifact=codeArtifact(design)){
   const m=machine();
+  const softwareSynthesis={
+    ctx:m.ctx,basis:m.basis,complex:m.cx,valuation:m.v,
+    object:"design",options,workRef,
+    artifact,
+    signcraftSource:{repository:"red-cup-engineering/signcraft",
+      commitSha:signcraftCommit,exportPath:"./inference/generate"}
+  };
+  // The selected Work and Code source are original inputs, not derived from
+  // an untrusted provisional candidate produced later by SignCraft.
+  const sourceSelection={workRef:softwareSynthesis.workRef,signcraftSource:softwareSynthesis.signcraftSource,
+    artifact:{path:artifact.path,contentSha256:createHash("sha256").update(artifact.content).digest("hex"),
+      producer:artifact.producer}};
   return synthesizeGitForgeProposal({
-    softwareSynthesis:{
-      ctx:m.ctx,basis:m.basis,complex:m.cx,valuation:m.v,
-      object:"design",options,workRef,
-      artifact,
-      signcraftSource:{repository:"red-cup-engineering/signcraft",
-        commitSha:signcraftCommit,exportPath:"./inference/generate"}
-    },
+    softwareSynthesis,sourceSelection,
     target:{repository:"red-cup-engineering/forge-consumer",
       branch:"review/signcraft-code",expectedBranchSha:branchSha,
       expectedBlobSha:null,message:"Propose admitted source code"}
