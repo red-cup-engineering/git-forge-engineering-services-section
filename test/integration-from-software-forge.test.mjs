@@ -26,11 +26,14 @@ const fixture=()=>{const x=({
     expectedBranchSha:c,expectedBlobSha:null,message:"Propose original source change"}
 });
 x.sourceSelection={
-  workRef:x.softwareCandidateInput.workRef,
-  signcraftSource:x.softwareCandidateInput.signcraftSource,
-  artifact:{path:x.softwareCandidateInput.artifact.path,
-    contentSha256:createHash("sha256").update(x.softwareCandidateInput.artifact.content).digest("hex"),
-    producer:x.softwareCandidateInput.artifact.producer}
+  // Receiver-owned source selection is independent of the transported input.
+  // In particular, changing a candidate producer must not change this witness.
+  workRef:"ni:///sha-256;original-work",
+  signcraftSource:{repository:"red-cup-engineering/signcraft",commitSha:sha,exportPath:"./inference/generate"},
+  artifact:{path:"src/qualified.mjs",
+    contentSha256:createHash("sha256").update("export const tested = true;\n").digest("hex"),
+    producer:{repository:"red-cup-engineering/computer-code-engineering-services-section",commitSha:b,
+      sourceRef:"actual-source-produced-artifact"}}
 };
 return x;};
 test("original Software Forge is imported and Git Forge preserves its actual content digest",()=>{
@@ -109,6 +112,8 @@ test("Git Forge refuses nonportable nested source evidence through the original 
 
 test("a plausible alternative Code source claim cannot cross the original selected source",()=>{
   const x=fixture(),original=structuredClone(x.sourceSelection);
+  assert.notStrictEqual(x.sourceSelection.artifact.producer,x.softwareCandidateInput.artifact.producer);
+  assert.notStrictEqual(x.sourceSelection.signcraftSource,x.softwareCandidateInput.signcraftSource);
   x.softwareCandidateInput.artifact.producer.sourceRef="substituted-but-valid-ref";
   assert.throws(()=>gitProposalFromSoftwareForge(x),/independently selected original Work and source/u);
   assert.deepEqual(x.sourceSelection,original,"independent source must not be rewritten to match the candidate");
