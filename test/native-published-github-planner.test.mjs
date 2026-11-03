@@ -246,7 +246,7 @@ test("source-qualified Specification architecture schema is genuinely generated 
     exportName:"architectureDescriptionCandidateSchema",
     typeName:"ArchitectureDescriptionCandidate",schema
   }],{format:"javascript"});
-  const srcRef="red-cup-engineering/specification-engineering-services-section@"+
+  const srcRef="red-cup-engineering/engineering-content-engineering-services-section@"+
     specCommit+":"+specPath+"#"+specBlob;
   const artifact={path:"src/architecture-description-schema.mjs",content:code,
     producer:{repository:"red-cup-engineering/javascript-node-code-fabrication-services-section",
