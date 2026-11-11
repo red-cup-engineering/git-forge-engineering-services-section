@@ -19,7 +19,7 @@ It does not replace the native Git Services tree/read/write implementation.
 The upstream package is explicitly consumed at
 `./from-software-forge`; Git-specific proposal admission is at
 `./source-proposal`, using Software Forge qualification and the original
-SignCraft retained carrier.
+SignCell retained carrier.
 
 `gitForgeSourceProposal({candidate,target,sourceSelection})` consumes the
 **original Software Forge** `qualifyForgeSourceCandidate` operation, not a
@@ -40,43 +40,36 @@ qualifies and converts this into the existing
 operation may take an effect. A Git provider failing to read the branch, a
 source whose SHA has moved, or an unadmitted Office is a held/refused effect.
 
-The historical merged Git Forge baseline is `0.2.0-dev.0`; this `0.2.0` source
-release declaration selects the issued Software Forge `0.3.1` **source at commit
-`2ed0564f05002ce58ccabccc0bb66d18c2098877`** and SignCraft `0.6.2`.
-Its original source CI checks immutable upstream source, executes the real
-Code/SignCraft/Forge integration and retains the native published GitHub review
-planner. A separate published-closure job must independently install the
-registry package and verify its version, publisher-recorded Git head and source
-Git blob `9357d24c8c9ed6f8bd1ffe35c51dc00702ea2e9b` against the exact accepted
-upstream. A source checkout is not a registered immutable release: the
-manifest's requested dependency does not establish a valid installed product,
-or authorize replacing the old released dependency in deployed consumers. The native
-`node --test test/source-proposal.test.mjs` covers positive, different and
-adverse cases; the cross-package adapter additionally requires the actual
-published upstream release. No GitHub Gitlink is reparented until exact
-producer and consumer custody has been independently received.
+## Dependencies and tests
 
-## Independently qualified source and published source-reader consumption
+Git Forge depends on two packages, each as a compatible range from
+`registry.561.group`: Software Forge, whose candidates it turns into Git
+proposals, and SignCell, whose retained carrier holds the proposal. SignCraft
+is a development dependency: the tests build a real synthesis with it.
 
-The public Forge native CI exercises the original source pipeline:
-Specification Engineering's **merged** architecture-description candidate
-JSON Schema (actual original Git commit and schema blob) → original Code maker's
-real executable JavaScript generation → SignCraft → Software Forge → Git Forge
-→ the **released** GitHub guarded review planner. The entire Specification
-schema, not a handwritten pseudorecord, is loaded from its exact Git source
-and the resulting JavaScript is imported as a real module. The Git primitive
-that authenticates this source is consumed from original registry release
-`@red-cup-engineering/git-source-reading-service@0.1.2`, with exact
-`pinned-source-files.mjs` content checked against the source-owning
-main revision already independently received; a source symlink cannot silently
-stand in for the actual published dependency.
+`npm test` runs the three suites that need only those packages:
+`test/source-proposal.test.mjs` (positive, different and adverse cases),
+`test/integration-from-software-forge.test.mjs` and
+`test/native-signcraft-chain.test.mjs`. CI installs the declared dependencies
+and runs them on pull requests and on `main`. The tests neither publish Git
+Forge nor execute a GitHub write.
 
-The public tests run both as pull-request checks and after landing on main;
-they neither publish Git Forge nor execute a GitHub write. The architecture
-description is a **candidate**, not a conformant ISO/IEC/IEEE 42010:2022
-architecture or formal refinement proof. Current unclosed boundaries remain
-the original Code/Forges' exact released package closure, the private GitHub
-Engineering effect host and real beneficiary-accepted Work.
+## The whole chain, from a specification to a GitHub review plan
+
+`test/native-published-github-planner.test.mjs` exercises the chain end to
+end: Specification Engineering's architecture-description candidate JSON Schema
+→ the Code maker's JavaScript generation → SignCraft → Software Forge → Git
+Forge → GitHub Engineering's guarded review planner. The whole schema is read
+from its Git source at an exact commit and the generated JavaScript is imported
+as a real module. The architecture description is a **candidate**, not a
+conformant ISO/IEC/IEEE 42010:2022 architecture or formal refinement proof.
+
+That test imports GitHub Engineering, the Code maker and the Git source reader,
+and reads checkouts of the Specification and Code repositories beside this one.
+GitHub Engineering is downstream of Git Forge, so the test belongs at that end
+of the chain and is to move there. Until it does, run it here with
+`npm run test:github-compatibility` where those packages and checkouts are
+present; CI does not run it.
 
 Original 561 Group Work:
 `ni:///sha-256;N2B0dn3jHK7-wH7j6URwNpu2C0ofnY9zWH6saAYxI7w`.
@@ -97,11 +90,5 @@ reimplemented in this package. Git Forge only makes the Git-specific proposal;
 a Git source reader, GitHub provider effect, publisher and beneficiary each
 retain their separate receiving authority.
 
-The source CI runs the original upstream Git checkout, real package source and
-consumer tests and the existing original Code → Specification → Git provider
-planner. The second CI job requires **actual published** source-identical
-Software Forge package bytes. The selected `0.3.1` edition has been issued by
-the original publisher; the source and published-closure gates must still pass
-against each exact Git Forge candidate. Git Forge's own publication, an
-installed GitHub effect host and beneficiary Work receiving remain separate
-boundaries.
+Git Forge's own publication, an installed GitHub effect host and beneficiary
+Work receiving remain separate boundaries.

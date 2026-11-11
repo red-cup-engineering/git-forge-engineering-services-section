@@ -19,16 +19,14 @@
     "./from-signcraft": "./src/from-signcraft.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/software-forge-services-section": "0.3.1",
-    "@red-cup-engineering/signcraft": "0.6.2"
+    "@red-cup-engineering/signcell": "^0.17.4",
+    "@red-cup-engineering/software-forge-services-section": "^0.3.2"
   },
   "scripts": {
     "check": "node --check src/source-proposal.mjs && node --check src/from-software-forge.mjs && node --check test/source-proposal.test.mjs && node --check test/integration-from-software-forge.test.mjs && node --check src/from-signcraft.mjs && node --check test/native-signcraft-chain.test.mjs && node --check test/native-published-github-planner.test.mjs",
-    "test": "node --test test/source-proposal.test.mjs",
+    "test": "node --test test/source-proposal.test.mjs test/integration-from-software-forge.test.mjs test/native-signcraft-chain.test.mjs",
     "verify": "npm run check && npm test",
-    "prepublishOnly": "npm run verify && npm run test:integration && npm run test:signcraft-chain",
-    "test:integration": "node --test test/integration-from-software-forge.test.mjs",
-    "test:signcraft-chain": "node --test test/native-signcraft-chain.test.mjs",
+    "prepublishOnly": "npm run verify",
     "test:github-compatibility": "node --test test/native-published-github-planner.test.mjs"
   },
   "files": [
@@ -41,5 +39,8 @@
   "publishConfig": {
     "registry": "https://registry.561.group/",
     "tag": "next"
+  },
+  "devDependencies": {
+    "@red-cup-engineering/signcraft": "^0.9.5"
   }
 }
