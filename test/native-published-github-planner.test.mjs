@@ -33,7 +33,7 @@ function codeArtifact({includeOwner=false}={}){
     exportName:"forgeEvidenceSchema",typeName:"ForgeEvidence",schema
   }],{format:"javascript"});
   return {path:"src/qualified.mjs",content,
-    producer:{repository:"red-cup-engineering/javascript-node-code-fabrication-services-section",
+    producer:{repository:"red-cup-engineering/javascript-node-code-fabrication-engineering-services-section",
       commitSha:codeMakerCommit,sourceRef:schemaSourceRef}};
 }
 const machine=()=>makeMachineState({
@@ -117,7 +117,7 @@ test("native original Code maker generates source before both Forges and the rel
   assert.equal(one.git.content,generated.content);
   assert.equal(one.git.content,replayed.git.content);
   assert.equal(one.source.codeProducer.repository,
-    "red-cup-engineering/javascript-node-code-fabrication-services-section");
+    "red-cup-engineering/javascript-node-code-fabrication-engineering-services-section");
   assert.equal(one.source.codeProducer.commitSha,codeMakerCommit);
   assert.equal(one.source.codeProducer.sourceRef,schemaSourceRef);
   assert.match(one.git.content,/Generated from specifications/u);
@@ -249,7 +249,7 @@ test("source-qualified Specification architecture schema is genuinely generated 
   const srcRef="red-cup-engineering/engineering-content-engineering-services-section@"+
     specCommit+":"+specPath+"#"+specBlob;
   const artifact={path:"src/architecture-description-schema.mjs",content:code,
-    producer:{repository:"red-cup-engineering/javascript-node-code-fabrication-services-section",
+    producer:{repository:"red-cup-engineering/javascript-node-code-fabrication-engineering-services-section",
       commitSha:codeMakerCommit,sourceRef:srcRef}};
   const one=source(undefined,{},artifact),again=source(undefined,{},artifact);
   assert.equal(one.kind,"git-forge.source-proposal.v1");
