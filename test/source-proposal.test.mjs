@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
-import {forgeSourceCandidate} from "@red-cup-engineering/software-forge-services-section/source-candidate";
+import {forgeSourceCandidate} from "@red-cup-engineering/software-forge-engineering-services-section/source-candidate";
 import {gitForgeSourceProposal} from "../src/source-proposal.mjs";
 
 const a="a".repeat(40),b="b".repeat(40),c="c".repeat(40);

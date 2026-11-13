@@ -1,4 +1,4 @@
-import {synthesizeForgeSource} from "@red-cup-engineering/software-forge-services-section/signcraft-source";
+import {synthesizeForgeSource} from "@red-cup-engineering/software-forge-engineering-services-section/signcraft-source";
 import {gitForgeSourceProposal} from "./source-proposal.mjs";
 
 /**

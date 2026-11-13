@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
 import {gitProposalFromSoftwareForge} from "../src/from-software-forge.mjs";
 import {gitForgeSourceProposal} from "../src/source-proposal.mjs";
-import {forgeSourceCandidate} from "@red-cup-engineering/software-forge-services-section/source-candidate";
+import {forgeSourceCandidate} from "@red-cup-engineering/software-forge-engineering-services-section/source-candidate";
 
 const sha="a".repeat(40), b="b".repeat(40), c="c".repeat(40);
 const fixture=()=>{const x=({

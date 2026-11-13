@@ -7,8 +7,8 @@ import {join} from "node:path";
 import {pathToFileURL,fileURLToPath} from "node:url";
 import {makeMachineState} from "@red-cup-engineering/signcraft/inference/kernel";
 import {synthesizeGitForgeProposal} from "../src/from-signcraft.mjs";
-import {planBoundedReviewCall} from "@red-cup-engineering/github-repository-hosting-service/review-call";
-import {renderJsonSchemaModule} from "@red-cup-engineering/javascript-node-code-fabrication-services-section/transform-json-schema-to-typescript";
+import {planBoundedReviewCall} from "@red-cup-engineering/github-engineering-services-section/review-call";
+import {renderJsonSchemaModule} from "@red-cup-engineering/javascript-node-code-fabrication-engineering-services-section/transform-json-schema-to-typescript";
 import {createPinnedSourceReader} from "@red-cup-engineering/git-source-reading-service/pinned-source-files";
 
 const signcraftCommit="43cc43ccbca025b22749acf61dd60cab2089d47f";

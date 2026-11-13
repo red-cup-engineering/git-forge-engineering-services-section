@@ -4,7 +4,7 @@
  * Git Forge owns only the selected Git target and its exact revision guards;
  * GitHub provider admission and writes remain with GitHub Engineering.
  */
-import {qualifyForgeSourceCandidate} from "@red-cup-engineering/software-forge-services-section/source-candidate";
+import {qualifyForgeSourceCandidate} from "@red-cup-engineering/software-forge-engineering-services-section/source-candidate";
 import {retainedCarrier} from "@red-cup-engineering/signcell/content-address";
 
 const SHA=/^[0-9a-f]{40}$/u;

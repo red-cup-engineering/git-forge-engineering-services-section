@@ -1,4 +1,4 @@
-import {forgeSourceCandidate} from "@red-cup-engineering/software-forge-services-section/source-candidate";
+import {forgeSourceCandidate} from "@red-cup-engineering/software-forge-engineering-services-section/source-candidate";
 import {gitForgeSourceProposal} from "./source-proposal.mjs";
 
 /** Use the ORIGINAL upstream source maker; never recast a refusal as a Git move. */
